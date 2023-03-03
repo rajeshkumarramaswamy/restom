@@ -1,6 +1,13 @@
-import { Breadcrumb, Layout, Menu, theme } from "antd";
+import { Layout, theme } from "antd";
+import { useQuery } from "react-query";
+import ParentContainer from "../containers/main/ParentContainer";
+import { GetToken } from "../utils/api/api";
 const { Header, Content, Footer } = Layout;
 const Grid = () => {
+  // const getToken = useQuery("token", GetToken, {
+  //   refetchOnWindowFocus: false,
+  // });
+  // console.log("getToken", getToken);
   const {
     token: { colorBgContainer },
   } = theme.useToken();
@@ -18,19 +25,10 @@ const Grid = () => {
           style={{
             float: "left",
             width: 120,
-            height: 31,
+            height: 30,
             margin: "16px 24px 16px 0",
             background: "rgba(255, 255, 255, 0.2)",
           }}
-        />
-        <Menu
-          theme="dark"
-          mode="horizontal"
-          defaultSelectedKeys={["2"]}
-          items={new Array(3).fill(null).map((_, index) => ({
-            key: String(index + 1),
-            label: `nav ${index + 1}`,
-          }))}
         />
       </Header>
       <Content
@@ -39,15 +37,6 @@ const Grid = () => {
           padding: "0 50px",
         }}
       >
-        <Breadcrumb
-          style={{
-            margin: "16px 0",
-          }}
-        >
-          <Breadcrumb.Item>Home</Breadcrumb.Item>
-          <Breadcrumb.Item>List</Breadcrumb.Item>
-          <Breadcrumb.Item>App</Breadcrumb.Item>
-        </Breadcrumb>
         <div
           style={{
             padding: 24,
@@ -55,7 +44,7 @@ const Grid = () => {
             background: colorBgContainer,
           }}
         >
-          Content
+          <ParentContainer />
         </div>
       </Content>
       <Footer
@@ -63,7 +52,7 @@ const Grid = () => {
           textAlign: "center",
         }}
       >
-        Ant Design ©2023 Created by Ant UED
+        Xeat Pvt Ltd ©2023 Created by Rajesh
       </Footer>
     </Layout>
   );
