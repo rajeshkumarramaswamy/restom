@@ -1,12 +1,24 @@
-import { Button, Col, DatePicker, Form, Input, Row, Select, Space } from "antd";
+import { useFirestoreCollectionMutation } from "@react-query-firebase/firestore";
+import {
+  Button,
+  Col,
+  DatePicker,
+  Form,
+  Input,
+  Row,
+  Select,
+  Space,
+  notification,
+} from "antd";
 import { get } from "lodash";
-import React, { useState } from "react";
-import { useQueryClient, useQuery } from "react-query";
+import React, { useState, useEffect } from "react";
+import { driversData, restaurantsData } from "../../data/data";
+import { epoch } from "../../utils/common";
 import { ordersRef } from "../../utils/services/ReactQueryServices";
 const { Option } = Select;
 
 let intial = {
-  restaurantName: "",
+  name: "",
   location: "",
   driver: "",
   miles: "",
@@ -14,19 +26,46 @@ let intial = {
   mileageEnd: "",
   status: "",
   date: "",
-  orderValue: "",
+  value: "",
 };
 
 const OrderForm = (props) => {
-  const queryClient = useQueryClient();
-
+  const [api, contextHolder] = notification.useNotification();
+  const orderMutate = useFirestoreCollectionMutation(ordersRef);
   const [orderState, setorderState] = useState(intial);
-  const { RangePicker } = DatePicker;
+
+  useEffect(() => {
+    if (orderMutate.isSuccess) {
+      api.success({
+        message: `Order Created`,
+        description: `Order ${orderMutate.variables.name} created successfully`,
+        placement: "bottomRight",
+        style: {
+          backgroundColor: "#f6ffed",
+          border: "1px solid #b7eb8f",
+        },
+      });
+      setorderState(intial);
+    } else if (orderMutate.isError) {
+      api.error({
+        message: `Order creation failed !`,
+        description: `Please try again later`,
+        placement: "bottomRight",
+      });
+    }
+  }, [orderMutate.isSuccess]);
+
   const dateFunction = (value, dateString) => {
-    console.log("Selected Time: ", value.toDate());
+    setorderState({
+      ...orderState,
+      date: epoch(dateString),
+    });
   };
-  const onSelectChange = (value) => {
-    console.log("onOk: ", value);
+  const onSelectChange = (value, type) => {
+    setorderState({
+      ...orderState,
+      [type]: value,
+    });
   };
 
   const handleTextInput = (value, type) => {
@@ -35,7 +74,9 @@ const OrderForm = (props) => {
       [type]: value,
     });
   };
-
+  const handleSubmit = () => {
+    orderMutate.mutate(orderState);
+  };
   return (
     <>
       <Form layout="vertical" hideRequiredMark>
@@ -53,20 +94,19 @@ const OrderForm = (props) => {
             >
               <Select
                 placeholder="Please select a restaurant"
-                onChange={onSelectChange}
+                onChange={(value) => onSelectChange(value, "name")}
+                value={orderState.name}
               >
-                {queryClient
-                  .getQueryData("fetchRestaurant")
-                  ?.data?.map((obj) => {
-                    return (
-                      <Option
-                        key={get(obj, "_fieldsProto.name.stringValue", "")}
-                        value={get(obj, "_fieldsProto.name.stringValue", "")}
-                      >
-                        {get(obj, "_fieldsProto.name.stringValue", "")}
-                      </Option>
-                    );
-                  })}
+                {restaurantsData.map((rest) => {
+                  return (
+                    <Option
+                      key={get(rest, "name", "")}
+                      value={get(rest, "name", "")}
+                    >
+                      {get(rest, "name", "")}
+                    </Option>
+                  );
+                })}
               </Select>
             </Form.Item>
           </Col>
@@ -87,6 +127,7 @@ const OrderForm = (props) => {
                 }}
                 placeholder="Please enter location"
                 onChange={(e) => handleTextInput(e.target.value, "location")}
+                value={orderState.location}
               />
             </Form.Item>
           </Col>
@@ -105,18 +146,13 @@ const OrderForm = (props) => {
             >
               <Select
                 placeholder="Please select an Driver"
-                onChange={onSelectChange}
+                onChange={(value) => onSelectChange(value, "driver")}
+                value={orderState.driver}
               >
-                {queryClient.getQueryData("fetchDrivers").data.map((driver) => {
+                {driversData.map((driver) => {
                   return (
-                    <Option
-                      value={get(
-                        driver,
-                        "_fieldsProto.firstName.stringValue",
-                        ""
-                      )}
-                    >
-                      {get(driver, "_fieldsProto.firstName.stringValue", "")}
+                    <Option value={get(driver, "firstName", "")}>
+                      {get(driver, "firstName", "")}
                     </Option>
                   );
                 })}
@@ -140,6 +176,7 @@ const OrderForm = (props) => {
                 }}
                 placeholder="Please enter miles"
                 onChange={(e) => handleTextInput(e.target.value, "miles")}
+                value={orderState.miles}
               />
             </Form.Item>
           </Col>
@@ -169,6 +206,7 @@ const OrderForm = (props) => {
                   onChange={(e) =>
                     handleTextInput(e.target.value, "mileageStart")
                   }
+                  value={orderState.mileageStart}
                 />
               </Form.Item>
               <Form.Item
@@ -189,6 +227,7 @@ const OrderForm = (props) => {
                   onChange={(e) =>
                     handleTextInput(e.target.value, "mileageEnd")
                   }
+                  value={orderState.mileageEnd}
                 />
               </Form.Item>
             </Form.Item>
@@ -208,7 +247,8 @@ const OrderForm = (props) => {
             >
               <Select
                 placeholder="Please select status"
-                onChange={onSelectChange}
+                onChange={(value) => onSelectChange(value, "status")}
+                value={orderState.status}
               >
                 <Option value="completed">Completed</Option>
                 <Option value="inprogress">In progress</Option>
@@ -228,7 +268,11 @@ const OrderForm = (props) => {
                 },
               ]}
             >
-              <DatePicker showTime onChange={dateFunction} />
+              <DatePicker
+                showTime
+                onChange={dateFunction}
+                value={orderState.date}
+              />
             </Form.Item>
           </Col>
           <Col span={8}>
@@ -248,6 +292,7 @@ const OrderForm = (props) => {
                 }}
                 placeholder="Please enter value"
                 onChange={(e) => handleTextInput(e.target.value, "value")}
+                value={orderState.value}
               />
             </Form.Item>
           </Col>
@@ -255,7 +300,11 @@ const OrderForm = (props) => {
       </Form>
       <Space>
         <Button onClick={props.onClose}>Cancel</Button>
-        <Button onClick={props.onClose} type="primary">
+        <Button
+          onClick={handleSubmit}
+          type="primary"
+          loading={orderMutate.isLoading}
+        >
           Submit
         </Button>
       </Space>
@@ -269,6 +318,7 @@ const OrderForm = (props) => {
       >
         <h1>Total : {orderState.value}</h1>
       </div>
+      {contextHolder}
     </>
   );
 };

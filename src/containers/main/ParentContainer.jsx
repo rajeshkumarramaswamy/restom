@@ -6,6 +6,9 @@ import RestaurantForm from "../../components/forms/RestaurantForm";
 import OrdersTable from "../orders/OrdersTable";
 import DriversTable from "../drivers/DriversTable";
 import OrderForm from "../../components/forms/OrderForm";
+import DriverForm from "../../components/forms/DriverForm";
+import ExportForm from "../../components/forms/ExportForm";
+import EditableTable from "../restaurants/EditableTable";
 
 let initialState = {
   open: false,
@@ -39,7 +42,7 @@ const ParentContainer = (props) => {
     {
       label: "Restaurants",
       key: 2,
-      children: <RestaurantsTable />,
+      children: <EditableTable />,
     },
     {
       label: "Drivers",
@@ -62,6 +65,8 @@ const ParentContainer = (props) => {
               ? "Add Restaurants"
               : parentObject.module === "2"
               ? "Add Driver"
+              : parentObject.module === "3"
+              ? "Export"
               : null
           }
           width={720}
@@ -77,6 +82,10 @@ const ParentContainer = (props) => {
                 <OrderForm onClose={onClose} />
               ) : parentObject.module === "1" ? (
                 <RestaurantForm onClose={onClose} />
+              ) : parentObject.module === "2" ? (
+                <DriverForm onClose={onClose} />
+              ) : parentObject.module === "3" ? (
+                <ExportForm />
               ) : null
             ) : null}
           </div>

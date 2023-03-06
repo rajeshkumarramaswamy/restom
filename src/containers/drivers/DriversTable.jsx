@@ -1,10 +1,8 @@
-import { Space, Table, Tag } from "antd";
-import React from "react";
-import Icon, { EditOutlined } from "@ant-design/icons";
-import { useQuery } from "react-query";
-import { GetDrivers, GetOrders, GetRestaurants } from "../../utils/api/api";
-import { driversRef } from "../../utils/services/ReactQueryServices";
 import { useFirestoreQuery } from "@react-query-firebase/firestore";
+import { Table } from "antd";
+import React from "react";
+import { driversRef } from "../../utils/services/ReactQueryServices";
+
 const columns = [
   {
     title: "First Name",
@@ -30,7 +28,9 @@ const columns = [
 ];
 
 const DriversTable = () => {
-  const queryDrivers = useFirestoreQuery(["drivers"], driversRef);
+  const queryDrivers = useFirestoreQuery(["drivers"], driversRef, {
+    subscribe: true,
+  });
   const fetchDrivers = queryDrivers.data?.docs?.map((docSnapshot) => {
     const doc = docSnapshot.data();
     return doc;

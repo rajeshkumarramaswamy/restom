@@ -6,7 +6,7 @@ import {
   CarTwoTone,
   ShopTwoTone,
 } from "@ant-design/icons";
-import { Dropdown, Space } from "antd";
+import { Dropdown, Space, Button } from "antd";
 
 const items = [
   {
@@ -39,15 +39,28 @@ const ActionsDropdown = (props) => {
         items,
         onClick: props.handleMenu,
       }}
-      trigger={["hover"]}
     >
-      <a onClick={(e) => e.preventDefault()}>
+      <Button type="primary" size="middle">
         <Space>
           Actions
           <DownOutlined />
         </Space>
-      </a>
+      </Button>
     </Dropdown>
+    // <Dropdown
+    //   menu={{
+    //     items,
+    //     onClick: props.handleMenu,
+    //   }}
+    //   trigger={["hover"]}
+    // >
+    //   <a onClick={(e) => e.preventDefault()}>
+    //     <Space>
+    //       Actions
+    //       <DownOutlined />
+    //     </Space>
+    //   </a>
+    // </Dropdown>
   );
 };
 
