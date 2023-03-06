@@ -9,6 +9,7 @@ import OrderForm from "../../components/forms/OrderForm";
 import DriverForm from "../../components/forms/DriverForm";
 import ExportForm from "../../components/forms/ExportForm";
 import EditableTable from "../restaurants/EditableTable";
+import OrdersEditableTable from "../orders/OrdersEditableTable";
 
 let initialState = {
   open: false,
@@ -47,7 +48,7 @@ const ParentContainer = (props) => {
     {
       label: "Drivers",
       key: 3,
-      children: <DriversTable />,
+      children: <OrdersEditableTable />,
     },
   ];
 
