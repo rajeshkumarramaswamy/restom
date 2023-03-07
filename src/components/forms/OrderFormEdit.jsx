@@ -15,10 +15,10 @@ import {
 } from "antd";
 import { get } from "lodash";
 import React, { useState, useEffect } from "react";
+import { driversData, restaurantsData } from "../../data/data";
 import { epoch } from "../../utils/common";
 import {
   driversRef,
-  mutationOrdersRef,
   ordersRef,
   restaurantsRef,
 } from "../../utils/services/ReactQueryServices";
@@ -36,13 +36,13 @@ let intial = {
   value: "",
 };
 
-const OrderForm = (props) => {
+const OrderFormEdit = (props) => {
   const [restoList, setrestoList] = useState([]);
   const [driversList, setdriversList] = useState([]);
-  const [api, contextHolder] = notification.useNotification();
-  const orderMutate = useFirestoreCollectionMutation(mutationOrdersRef);
-  const [orderState, setorderState] = useState(intial);
 
+  const [api, contextHolder] = notification.useNotification();
+  const orderMutate = useFirestoreCollectionMutation(ordersRef);
+  const [orderState, setorderState] = useState(props.editDetails);
   const queryRestaurants = useFirestoreQuery(["retaurants"], restaurantsRef, {
     subscribe: true,
   });
@@ -50,6 +50,27 @@ const OrderForm = (props) => {
   const queryDrivers = useFirestoreQuery(["drivers"], driversRef, {
     subscribe: true,
   });
+
+  useEffect(() => {
+    if (orderMutate.isSuccess) {
+      api.success({
+        message: `Order updated`,
+        description: `Order ${orderMutate.variables.name} updated successfully`,
+        placement: "bottomRight",
+        style: {
+          backgroundColor: "#f6ffed",
+          border: "1px solid #b7eb8f",
+        },
+      });
+      setorderState(intial);
+    } else if (orderMutate.isError) {
+      api.error({
+        message: `Order updation failed !`,
+        description: `Please try again later`,
+        placement: "bottomRight",
+      });
+    }
+  }, [orderMutate.isSuccess]);
 
   useEffect(() => {
     if (queryRestaurants.isFetched) {
@@ -73,27 +94,6 @@ const OrderForm = (props) => {
     }
   }, [queryDrivers.isFetched]);
 
-  useEffect(() => {
-    if (orderMutate.isSuccess) {
-      api.success({
-        message: `Order Created`,
-        description: `Order ${orderMutate.variables.name} created successfully`,
-        placement: "bottomRight",
-        style: {
-          backgroundColor: "#f6ffed",
-          border: "1px solid #b7eb8f",
-        },
-      });
-      setorderState(intial);
-    } else if (orderMutate.isError) {
-      api.error({
-        message: `Order creation failed !`,
-        description: `Please try again later`,
-        placement: "bottomRight",
-      });
-    }
-  }, [orderMutate.isSuccess]);
-
   const dateFunction = (value, dateString) => {
     setorderState({
       ...orderState,
@@ -116,6 +116,7 @@ const OrderForm = (props) => {
   const handleSubmit = () => {
     orderMutate.mutate(orderState);
   };
+  console.log("props", props, orderState);
   return (
     <>
       <Form layout="vertical" hideRequiredMark>
@@ -213,7 +214,6 @@ const OrderForm = (props) => {
                 style={{
                   width: "100%",
                 }}
-                type="number"
                 placeholder="Please enter miles"
                 onChange={(e) => handleTextInput(e.target.value, "miles")}
                 value={orderState.miles}
@@ -242,7 +242,6 @@ const OrderForm = (props) => {
                 }}
               >
                 <Input
-                  type="number"
                   placeholder="Mileage Start"
                   onChange={(e) =>
                     handleTextInput(e.target.value, "mileageStart")
@@ -264,7 +263,6 @@ const OrderForm = (props) => {
                 }}
               >
                 <Input
-                  type="number"
                   placeholder="Mileage End"
                   onChange={(e) =>
                     handleTextInput(e.target.value, "mileageEnd")
@@ -332,7 +330,6 @@ const OrderForm = (props) => {
                 style={{
                   width: "100%",
                 }}
-                type="number"
                 placeholder="Please enter value"
                 onChange={(e) => handleTextInput(e.target.value, "value")}
                 value={orderState.value}
@@ -365,4 +362,4 @@ const OrderForm = (props) => {
     </>
   );
 };
-export default OrderForm;
+export default OrderFormEdit;

@@ -1,15 +1,13 @@
 import { Tabs, Drawer } from "antd";
 import React, { useState } from "react";
-import RestaurantsTable from "../restaurants/RestaurantsTable";
 import ActionsDropdown from "../../components/dropdowns/ActionsDropdown";
 import RestaurantForm from "../../components/forms/RestaurantForm";
 import OrdersTable from "../orders/OrdersTable";
-import DriversTable from "../drivers/DriversTable";
 import OrderForm from "../../components/forms/OrderForm";
 import DriverForm from "../../components/forms/DriverForm";
 import ExportForm from "../../components/forms/ExportForm";
 import EditableTable from "../restaurants/EditableTable";
-import OrdersEditableTable from "../orders/OrdersEditableTable";
+import DriversEditableTable from "../drivers/DriversEditableTable";
 
 let initialState = {
   open: false,
@@ -48,7 +46,7 @@ const ParentContainer = (props) => {
     {
       label: "Drivers",
       key: 3,
-      children: <OrdersEditableTable />,
+      children: <DriversEditableTable />,
     },
   ];
 

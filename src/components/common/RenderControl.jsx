@@ -1,5 +1,6 @@
 import { Spin } from "antd";
 import React from "react";
+import { StyledDiv } from "./StyledGuide";
 
 const RenderControl = (props) => {
   const {
@@ -10,16 +11,12 @@ const RenderControl = (props) => {
     hasPlaceholder,
     placeholderComponent,
   } = props;
-  if (loading)
-    if (hasPlaceholder) {
-      return placeholderComponent;
-    } else {
-      return (
-        <div>
-          <Spin size="default" />
-        </div>
-      );
-    }
+  if (true)
+    return (
+      <StyledDiv position="relative">
+        <Spin size="default" />
+      </StyledDiv>
+    );
 
   if (error)
     return (

@@ -43,7 +43,7 @@ const EditableCell = ({
   );
 };
 
-const OrdersEditableTable = () => {
+const DriversEditableTable = () => {
   const [form] = Form.useForm();
   const [data, setData] = useState([]);
   const [editingKey, setEditingKey] = useState("");
@@ -195,4 +195,4 @@ const OrdersEditableTable = () => {
     </Form>
   );
 };
-export default OrdersEditableTable;
+export default DriversEditableTable;
