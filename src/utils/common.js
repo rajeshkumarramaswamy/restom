@@ -3,7 +3,6 @@ export function epoch(date) {
 }
 
 export function modifyData(firestoreData) {
-  console.log("firestoreData", firestoreData.data?.docs);
   try {
     firestoreData.data?.docs.map((docSnapshot) => {
       const doc = docSnapshot.data();
@@ -13,3 +12,8 @@ export function modifyData(firestoreData) {
     return [];
   }
 }
+
+export const modifySelectData = (data) => {
+  let obj = [];
+  return data.map((ob) => ({ ...ob, value: obj.name }));
+};

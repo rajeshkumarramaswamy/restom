@@ -146,7 +146,10 @@ const OrdersTable = () => {
         }}
       >
         <div>
-          <OrderFormEdit editDetails={orderState.editDetails} />
+          <OrderFormEdit
+            editDetails={orderState.editDetails}
+            onClose={onClose}
+          />
         </div>
       </Drawer>
     </>

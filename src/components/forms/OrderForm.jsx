@@ -85,6 +85,7 @@ const OrderForm = (props) => {
         },
       });
       setorderState(intial);
+      props.onClose();
     } else if (orderMutate.isError) {
       api.error({
         message: `Order creation failed !`,
@@ -111,6 +112,13 @@ const OrderForm = (props) => {
     setorderState({
       ...orderState,
       [type]: value,
+    });
+  };
+
+  const handleNumberInput = (value, type) => {
+    setorderState({
+      ...orderState,
+      [type]: parseInt(value),
     });
   };
   const handleSubmit = () => {
@@ -215,7 +223,7 @@ const OrderForm = (props) => {
                 }}
                 type="number"
                 placeholder="Please enter miles"
-                onChange={(e) => handleTextInput(e.target.value, "miles")}
+                onChange={(e) => handleNumberInput(e.target.value, "miles")}
                 value={orderState.miles}
               />
             </Form.Item>
@@ -245,7 +253,7 @@ const OrderForm = (props) => {
                   type="number"
                   placeholder="Mileage Start"
                   onChange={(e) =>
-                    handleTextInput(e.target.value, "mileageStart")
+                    handleNumberInput(e.target.value, "mileageStart")
                   }
                   value={orderState.mileageStart}
                 />
@@ -267,7 +275,7 @@ const OrderForm = (props) => {
                   type="number"
                   placeholder="Mileage End"
                   onChange={(e) =>
-                    handleTextInput(e.target.value, "mileageEnd")
+                    handleNumberInput(e.target.value, "mileageEnd")
                   }
                   value={orderState.mileageEnd}
                 />
@@ -334,7 +342,7 @@ const OrderForm = (props) => {
                 }}
                 type="number"
                 placeholder="Please enter value"
-                onChange={(e) => handleTextInput(e.target.value, "value")}
+                onChange={(e) => handleNumberInput(e.target.value, "value")}
                 value={orderState.value}
               />
             </Form.Item>

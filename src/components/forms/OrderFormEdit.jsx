@@ -1,5 +1,5 @@
 import {
-  useFirestoreCollectionMutation,
+  useFirestoreDocumentMutation,
   useFirestoreQuery,
 } from "@react-query-firebase/firestore";
 import {
@@ -13,13 +13,14 @@ import {
   Space,
   notification,
 } from "antd";
+import dayjs from "dayjs";
+import { collection, doc } from "firebase/firestore";
 import { get } from "lodash";
 import React, { useState, useEffect } from "react";
-import { driversData, restaurantsData } from "../../data/data";
-import { epoch } from "../../utils/common";
+import { epoch, modifySelectData } from "../../utils/common";
+import { db } from "../../utils/firebase/firebaseConfig";
 import {
   driversRef,
-  ordersRef,
   restaurantsRef,
 } from "../../utils/services/ReactQueryServices";
 const { Option } = Select;
@@ -39,9 +40,10 @@ let intial = {
 const OrderFormEdit = (props) => {
   const [restoList, setrestoList] = useState([]);
   const [driversList, setdriversList] = useState([]);
-
   const [api, contextHolder] = notification.useNotification();
-  const orderMutate = useFirestoreCollectionMutation(ordersRef);
+  const [orderRef, setorderRef] = useState(null);
+
+  const orderMutate = useFirestoreDocumentMutation(orderRef, { merge: true });
   const [orderState, setorderState] = useState(props.editDetails);
   const queryRestaurants = useFirestoreQuery(["retaurants"], restaurantsRef, {
     subscribe: true,
@@ -63,6 +65,7 @@ const OrderFormEdit = (props) => {
         },
       });
       setorderState(intial);
+      props.onClose();
     } else if (orderMutate.isError) {
       api.error({
         message: `Order updation failed !`,
@@ -80,7 +83,8 @@ const OrderFormEdit = (props) => {
           return doc;
         }
       );
-      setrestoList(fetchRestaurants);
+      let finalRestaurants = modifySelectData(fetchRestaurants);
+      setrestoList(finalRestaurants);
     }
   }, [queryRestaurants.isFetched]);
 
@@ -90,9 +94,16 @@ const OrderFormEdit = (props) => {
         const doc = docSnapshot.data();
         return doc;
       });
-      setdriversList(fetchDrivers);
+      let finalDrivers = modifySelectData(fetchDrivers);
+      setdriversList(finalDrivers);
     }
   }, [queryDrivers.isFetched]);
+
+  useEffect(() => {
+    if (!!orderRef) {
+      orderMutate.mutate(orderState);
+    }
+  }, [orderRef]);
 
   const dateFunction = (value, dateString) => {
     setorderState({
@@ -114,9 +125,9 @@ const OrderFormEdit = (props) => {
     });
   };
   const handleSubmit = () => {
-    orderMutate.mutate(orderState);
+    setorderRef(doc(collection(db, "orders"), props.editDetails.id));
   };
-  console.log("props", props, orderState);
+
   return (
     <>
       <Form layout="vertical" hideRequiredMark>
@@ -136,6 +147,7 @@ const OrderFormEdit = (props) => {
                 placeholder="Please select a restaurant"
                 onChange={(value) => onSelectChange(value, "name")}
                 value={orderState.name}
+                defaultValue={orderState.name}
               >
                 {restoList.map((rest) => {
                   return (
@@ -168,6 +180,7 @@ const OrderFormEdit = (props) => {
                 placeholder="Please enter location"
                 onChange={(e) => handleTextInput(e.target.value, "location")}
                 value={orderState.location}
+                defaultValue={orderState.location}
               />
             </Form.Item>
           </Col>
@@ -188,10 +201,14 @@ const OrderFormEdit = (props) => {
                 placeholder="Please select an Driver"
                 onChange={(value) => onSelectChange(value, "driver")}
                 value={orderState.driver}
+                defaultValue={orderState.driver}
               >
                 {driversList.map((driver) => {
                   return (
-                    <Option value={get(driver, "firstName", "")}>
+                    <Option
+                      key={get(driver, "firstName", "")}
+                      value={get(driver, "firstName", "")}
+                    >
                       {get(driver, "firstName", "")}
                     </Option>
                   );
@@ -217,6 +234,7 @@ const OrderFormEdit = (props) => {
                 placeholder="Please enter miles"
                 onChange={(e) => handleTextInput(e.target.value, "miles")}
                 value={orderState.miles}
+                defaultValue={orderState.miles}
               />
             </Form.Item>
           </Col>
@@ -247,6 +265,7 @@ const OrderFormEdit = (props) => {
                     handleTextInput(e.target.value, "mileageStart")
                   }
                   value={orderState.mileageStart}
+                  defaultValue={orderState.mileageStart}
                 />
               </Form.Item>
               <Form.Item
@@ -268,6 +287,7 @@ const OrderFormEdit = (props) => {
                     handleTextInput(e.target.value, "mileageEnd")
                   }
                   value={orderState.mileageEnd}
+                  defaultValue={orderState.mileageEnd}
                 />
               </Form.Item>
             </Form.Item>
@@ -289,6 +309,7 @@ const OrderFormEdit = (props) => {
                 placeholder="Please select status"
                 onChange={(value) => onSelectChange(value, "status")}
                 value={orderState.status}
+                defaultValue={orderState.status}
               >
                 <Option value="completed">Completed</Option>
                 <Option value="inprogress">In progress</Option>
@@ -311,7 +332,8 @@ const OrderFormEdit = (props) => {
               <DatePicker
                 showTime
                 onChange={dateFunction}
-                value={orderState.date}
+                value={dayjs(orderState.date)}
+                defaultValue={dayjs(orderState.date)}
               />
             </Form.Item>
           </Col>
@@ -333,6 +355,7 @@ const OrderFormEdit = (props) => {
                 placeholder="Please enter value"
                 onChange={(e) => handleTextInput(e.target.value, "value")}
                 value={orderState.value}
+                defaultValue={orderState.value}
               />
             </Form.Item>
           </Col>
