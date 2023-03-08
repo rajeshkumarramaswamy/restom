@@ -116,14 +116,23 @@ const OrderForm = (props) => {
   };
 
   const handleNumberInput = (value, type) => {
-    setorderState({
-      ...orderState,
-      [type]: parseInt(value),
-    });
+    if (type === "mileageEnd") {
+      setorderState({
+        ...orderState,
+        [type]: parseInt(value),
+        miles: parseInt(value) - orderState.mileageStart,
+      });
+    } else {
+      setorderState({
+        ...orderState,
+        [type]: parseInt(value),
+      });
+    }
   };
   const handleSubmit = () => {
     orderMutate.mutate(orderState);
   };
+  console.log("orderState", orderState);
   return (
     <>
       <Form layout="vertical" hideRequiredMark>
@@ -221,9 +230,9 @@ const OrderForm = (props) => {
                 style={{
                   width: "100%",
                 }}
+                disabled
                 type="number"
                 placeholder="Please enter miles"
-                onChange={(e) => handleNumberInput(e.target.value, "miles")}
                 value={orderState.miles}
               />
             </Form.Item>

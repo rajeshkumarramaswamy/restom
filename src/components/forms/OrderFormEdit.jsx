@@ -12,6 +12,7 @@ import {
   Select,
   Space,
   notification,
+  Spin,
 } from "antd";
 import dayjs from "dayjs";
 import { collection, doc } from "firebase/firestore";
@@ -21,12 +22,13 @@ import { epoch, modifySelectData } from "../../utils/common";
 import { db } from "../../utils/firebase/firebaseConfig";
 import {
   driversRef,
+  locationsRef,
   restaurantsRef,
 } from "../../utils/services/ReactQueryServices";
 const { Option } = Select;
 
 let intial = {
-  name: "",
+  restaurant: "",
   location: "",
   driver: "",
   miles: "",
@@ -38,18 +40,22 @@ let intial = {
 };
 
 const OrderFormEdit = (props) => {
+  const [form] = Form.useForm();
   const [restoList, setrestoList] = useState([]);
   const [driversList, setdriversList] = useState([]);
+  const [locationsList, setlocationsList] = useState([]);
   const [api, contextHolder] = notification.useNotification();
   const [orderRef, setorderRef] = useState(null);
 
   const orderMutate = useFirestoreDocumentMutation(orderRef, { merge: true });
-  const [orderState, setorderState] = useState(intial);
   const queryRestaurants = useFirestoreQuery(["retaurants"], restaurantsRef, {
     subscribe: true,
   });
 
   const queryDrivers = useFirestoreQuery(["drivers"], driversRef, {
+    subscribe: true,
+  });
+  const queryLocations = useFirestoreQuery(["locations"], locationsRef, {
     subscribe: true,
   });
 
@@ -64,8 +70,6 @@ const OrderFormEdit = (props) => {
           border: "1px solid #b7eb8f",
         },
       });
-      setorderState(intial);
-      props.onClose();
     } else if (orderMutate.isError) {
       api.error({
         message: `Order updation failed !`,
@@ -100,282 +104,221 @@ const OrderFormEdit = (props) => {
   }, [queryDrivers.isFetched]);
 
   useEffect(() => {
-    if (!!orderRef) {
-      orderMutate.mutate(orderState);
+    if (queryLocations.isFetched) {
+      const fetchLocations = queryLocations.data?.docs.map((docSnapshot) => {
+        const doc = docSnapshot.data();
+        return doc;
+      });
+      let finalLocations = modifySelectData(fetchLocations);
+      setlocationsList(finalLocations);
     }
-  }, [orderRef]);
+  }, [queryLocations.isFetched]);
 
   useEffect(() => {
-    setorderState(props.editDetails);
-  }, [props.editDetails]);
+    form.setFieldsValue({
+      ...props.editDetails,
+      date: dayjs(props.editDetails.date),
+    });
+    if (get(props, "editDetails.id", false)) {
+      setorderRef(doc(collection(db, "orders"), props.editDetails.id));
+    }
+  }, []);
 
-  const dateFunction = (value, dateString) => {
-    setorderState({
-      ...orderState,
-      date: epoch(dateString),
-    });
-  };
-  const onSelectChange = (value, type) => {
-    setorderState({
-      ...orderState,
-      [type]: value,
+  const handleSubmit = (values) => {
+    orderMutate.mutate({
+      ...values,
+      id: props.editDetails.id,
+      date: epoch(values.date),
     });
   };
 
-  const handleTextInput = (value, type) => {
-    setorderState({
-      ...orderState,
-      [type]: value,
-    });
-  };
-  const handleSubmit = () => {
-    setorderRef(doc(collection(db, "orders"), props.editDetails.id));
-  };
-  console.log("props", props.editDetails, orderState);
   return (
     <>
-      <Form layout="vertical" hideRequiredMark>
-        <Row gutter={16}>
-          <Col span={12}>
-            <Form.Item
-              name="restaurant"
-              label="Restaurant"
-              rules={[
-                {
-                  required: true,
-                  message: "Please select Restaurant",
-                },
-              ]}
-            >
-              <Select
-                placeholder="Please select a restaurant"
-                onChange={(value) => onSelectChange(value, "name")}
-                value={orderState.name}
-                defaultValue={orderState.name}
-              >
-                {restoList.map((rest) => {
-                  return (
-                    <Option
-                      key={get(rest, "name", "")}
-                      value={get(rest, "name", "")}
-                    >
-                      {get(rest, "name", "")}
-                    </Option>
-                  );
-                })}
-              </Select>
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item
-              name="location"
-              label="Location"
-              rules={[
-                {
-                  required: true,
-                  message: "Please enter location",
-                },
-              ]}
-            >
-              <Input
-                style={{
-                  width: "100%",
-                }}
-                placeholder="Please enter location"
-                onChange={(e) => handleTextInput(e.target.value, "location")}
-                value={orderState.location}
-                defaultValue={orderState.location}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={16}>
-          <Col span={12}>
-            <Form.Item
-              name="driver"
-              label="Driver"
-              rules={[
-                {
-                  required: true,
-                  message: "Please select an Driver",
-                },
-              ]}
-            >
-              <Select
-                placeholder="Please select an Driver"
-                onChange={(value) => onSelectChange(value, "driver")}
-                value={orderState.driver}
-                defaultValue={orderState.driver}
-              >
-                {driversList.map((driver) => {
-                  return (
-                    <Option
-                      key={get(driver, "firstName", "")}
-                      value={get(driver, "firstName", "")}
-                    >
-                      {get(driver, "firstName", "")}
-                    </Option>
-                  );
-                })}
-              </Select>
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item
-              name="miles"
-              label="Miles"
-              rules={[
-                {
-                  required: true,
-                  message: "Please enter miles",
-                },
-              ]}
-            >
-              <Input
-                style={{
-                  width: "100%",
-                }}
-                placeholder="Please enter miles"
-                onChange={(e) => handleTextInput(e.target.value, "miles")}
-                value={orderState.miles}
-                defaultValue={orderState.miles}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={16}>
-          <Col span={24}>
-            <Form.Item
-              label="Mileage"
-              style={{
-                marginBottom: 0,
-              }}
-            >
+      <Spin spinning={orderMutate.isLoading}>
+        <Form layout="vertical" form={form} onFinish={handleSubmit}>
+          <Row gutter={16}>
+            <Col span={12}>
               <Form.Item
-                name="mileageStart"
+                name="name"
+                label="Restaurant"
                 rules={[
                   {
                     required: true,
+                    message: "Please select Restaurant",
                   },
                 ]}
-                style={{
-                  display: "inline-block",
-                  width: "calc(50% - 8px)",
-                }}
               >
-                <Input
-                  placeholder="Mileage Start"
-                  onChange={(e) =>
-                    handleTextInput(e.target.value, "mileageStart")
-                  }
-                  value={orderState.mileageStart}
-                  defaultValue={orderState.mileageStart}
-                />
+                <Select placeholder="Please select a restaurant">
+                  {restoList.map((rest) => {
+                    return (
+                      <Option
+                        key={get(rest, "name", "")}
+                        value={get(rest, "name", "")}
+                      >
+                        {get(rest, "name", "")}
+                      </Option>
+                    );
+                  })}
+                </Select>
               </Form.Item>
+            </Col>
+            <Col span={12}>
               <Form.Item
-                name="mileageEnd"
+                name="location"
+                label="Location"
                 rules={[
                   {
                     required: true,
+                    message: "Please enter location",
                   },
                 ]}
+              >
+                <Select placeholder="Please select a location">
+                  {locationsList.map((rest) => {
+                    return (
+                      <Option
+                        key={get(rest, "name", "")}
+                        value={get(rest, "name", "")}
+                      >
+                        {get(rest, "name", "")}
+                      </Option>
+                    );
+                  })}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={24}>
+              <Form.Item
+                name="driver"
+                label="Driver"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please select an Driver",
+                  },
+                ]}
+              >
+                <Select placeholder="Please select an Driver">
+                  {driversList.map((driver) => {
+                    return (
+                      <Option
+                        key={get(driver, "firstName", "")}
+                        value={get(driver, "firstName", "")}
+                      >
+                        {get(driver, "firstName", "")}
+                      </Option>
+                    );
+                  })}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={24}>
+              <Form.Item
+                label="Mileage"
                 style={{
-                  display: "inline-block",
-                  width: "calc(50% - 8px)",
-                  margin: "0 8px",
+                  marginBottom: 0,
                 }}
+              >
+                <Form.Item
+                  name="mileageStart"
+                  rules={[
+                    {
+                      required: true,
+                    },
+                  ]}
+                  style={{
+                    display: "inline-block",
+                    width: "calc(50% - 8px)",
+                  }}
+                >
+                  <Input placeholder="Mileage Start" />
+                </Form.Item>
+                <Form.Item
+                  name="mileageEnd"
+                  rules={[
+                    {
+                      required: true,
+                    },
+                  ]}
+                  style={{
+                    display: "inline-block",
+                    width: "calc(50% - 8px)",
+                    margin: "0 8px",
+                  }}
+                >
+                  <Input placeholder="Mileage End" />
+                </Form.Item>
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={8}>
+              <Form.Item
+                name="status"
+                label="Status"
+                rules={[
+                  {
+                    required: true,
+                    message: "Select status",
+                  },
+                ]}
+              >
+                <Select placeholder="Please select status">
+                  <Option value="completed">Completed</Option>
+                  <Option value="inprogress">In progress</Option>
+                  <Option value="hold">Hold</Option>
+                  <Option value="failed">Failed</Option>
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item
+                name="date"
+                label="Date"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please select date",
+                  },
+                ]}
+              >
+                <DatePicker showTime />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item
+                name="value"
+                label="Value"
+                rules={[
+                  {
+                    required: true,
+                    message: "Enter Value",
+                  },
+                ]}
               >
                 <Input
-                  placeholder="Mileage End"
-                  onChange={(e) =>
-                    handleTextInput(e.target.value, "mileageEnd")
-                  }
-                  value={orderState.mileageEnd}
-                  defaultValue={orderState.mileageEnd}
+                  style={{
+                    width: "100%",
+                  }}
+                  type="number"
+                  placeholder="Please enter value"
                 />
               </Form.Item>
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={16}>
-          <Col span={8}>
-            <Form.Item
-              name="status"
-              label="Status"
-              rules={[
-                {
-                  required: true,
-                  message: "Select status",
-                },
-              ]}
-            >
-              <Select
-                placeholder="Please select status"
-                onChange={(value) => onSelectChange(value, "status")}
-                value={orderState.status}
-                defaultValue={orderState.status}
-              >
-                <Option value="completed">Completed</Option>
-                <Option value="inprogress">In progress</Option>
-                <Option value="hold">Hold</Option>
-                <Option value="failed">Failed</Option>
-              </Select>
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item
-              name="date"
-              label="Date"
-              rules={[
-                {
-                  required: true,
-                  message: "Please choose the approver",
-                },
-              ]}
-            >
-              <DatePicker
-                showTime
-                onChange={dateFunction}
-                value={dayjs(orderState.date)}
-                defaultValue={dayjs(orderState.date)}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item
-              name="value"
-              label="Value"
-              rules={[
-                {
-                  required: true,
-                  message: "Enter Value",
-                },
-              ]}
-            >
-              <Input
-                style={{
-                  width: "100%",
-                }}
-                type="number"
-                placeholder="Please enter value"
-                onChange={(e) => handleTextInput(e.target.value, "value")}
-                value={orderState.value}
-                defaultValue={orderState.value}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-      </Form>
-      <Space>
-        <Button onClick={props.onClose}>Cancel</Button>
-        <Button
-          onClick={handleSubmit}
-          type="primary"
-          loading={orderMutate.isLoading}
-        >
-          Submit
-        </Button>
-      </Space>
+            </Col>
+          </Row>
+          <Space>
+            <Button onClick={props.onClose}>Cancel</Button>
+            <Button type="primary" htmlType="submit">
+              Submit
+            </Button>
+          </Space>
+        </Form>
+      </Spin>
+
       <div
         style={{
           position: "absolute",
@@ -384,7 +327,7 @@ const OrderFormEdit = (props) => {
           color: "gray",
         }}
       >
-        <h1>Total : {orderState.value}</h1>
+        <h1>Total : {form.getFieldValue("value")}</h1>
       </div>
       {contextHolder}
     </>

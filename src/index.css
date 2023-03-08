@@ -1,3 +1,7 @@
 .ant-table-container {
   height: calc(100vh - 302px);
 }
+
+.ant-layout-header {
+  background: #ff0000 !important;
+}

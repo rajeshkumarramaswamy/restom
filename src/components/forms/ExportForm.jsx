@@ -1,7 +1,7 @@
 import { useFirestoreQuery } from "@react-query-firebase/firestore";
 import { Button, Col, DatePicker, Form, Radio, Row, Select, Space } from "antd";
 import { get } from "lodash";
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import {
   locationsRef,
   restaurantsRef,
@@ -25,7 +25,6 @@ const initial = {
 
 const { Option } = Select;
 const ExportForm = (props) => {
-  const componentRef = useRef();
   const [exportState, setexportState] = useState(initial);
   const [restoList, setrestoList] = useState([]);
   const [locationList, setlocationList] = useState([]);
@@ -68,6 +67,11 @@ const ExportForm = (props) => {
     }
   );
   const onSelectChange = (value, type) => {
+    setreports({
+      alldocs: [],
+      total: 0,
+      currentDate: null,
+    });
     setexportState({
       ...exportState,
       [type]: value,
@@ -78,10 +82,10 @@ const ExportForm = (props) => {
     const ordersRef = collection(db, "orders");
     const orderQuery = query(
       ordersRef,
-      where("name", "==", exportState.restaurant)
-      // where("location", "==", exportState.location)
-      // where("date", ">=", exportState.dateFrom),
-      // where("date", "<=", exportState.dateTo)
+      where("name", "==", exportState.restaurant || "")
+      // where("location", "==", exportState.location || ""),
+      // where("date", ">=", exportState.dateFrom || ""),
+      // where("date", "<=", exportState.dateTo || "")
     );
 
     const finalResult = await getDocs(orderQuery);
@@ -102,11 +106,11 @@ const ExportForm = (props) => {
   };
 
   const handleCalendarChange = (time, timeString) => {
-    console.log("time", time, timeString);
-    // setexportState({
-    //   ...exportState,
-    //   date: value,
-    // });
+    setexportState({
+      ...exportState,
+      dateFrom: dayjs(time[0]).startOf("date").unix(),
+      dateTo: dayjs(time[1]).endOf("date").unix(),
+    });
   };
 
   const handleTimeChange = (value, dateString) => {
@@ -134,7 +138,7 @@ const ExportForm = (props) => {
     });
   };
 
-  console.log("exportState", exportState);
+  console.log("exportState", exportState, reports);
 
   return (
     // <RenderControl
@@ -273,11 +277,18 @@ const ExportForm = (props) => {
           <Button onClick={resetPage}>Reset</Button>
         </Space>
       </>
-      <StyledDiv position="absolute" bottom="60px">
-        {exportState.hitCall && reports.alldocs.length > 0 && (
+      <StyledDiv position="absolute" bottom={"60px"}>
+        {exportState.hitCall && reports.alldocs.length > 0 ? (
           <PDFViewer>
             <Invoice invoice={reports} />
           </PDFViewer>
+        ) : (
+          exportState.hitCall &&
+          reports.alldocs.length === 0 && (
+            <StyledDiv fontWeight="600" fontSize="30px" fontColor="lightgray">
+              No reports found
+            </StyledDiv>
+          )
         )}
       </StyledDiv>
     </>

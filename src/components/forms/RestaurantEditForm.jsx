@@ -1,30 +1,34 @@
-import { Button, Form, Input, Space, notification, Select } from "antd";
+import { Button, Form, Input, Space, notification, Select, Spin } from "antd";
 import React, { useState, useEffect } from "react";
 import {
-  useFirestoreCollectionMutation,
+  useFirestoreDocumentMutation,
   useFirestoreQuery,
 } from "@react-query-firebase/firestore";
-import {
-  locationsRef,
-  restaurantsRef,
-} from "../../utils/services/ReactQueryServices";
+import { locationsRef } from "../../utils/services/ReactQueryServices";
 import { modifySelectData } from "../../utils/common";
 import { get } from "lodash";
+import { collection, doc } from "firebase/firestore";
+import { db } from "../../utils/firebase/firebaseConfig";
 const { Option } = Select;
-const initial = {
-  name: "",
-  location: "",
-  phone: "",
-};
 
-const RestaurantForm = (props) => {
-  const [restState, setrestState] = useState(initial);
+const RestaurantEditForm = (props) => {
+  const [form] = Form.useForm();
   const [locationsList, setlocationsList] = useState([]);
   const [api, contextHolder] = notification.useNotification();
-  const restoForm = useFirestoreCollectionMutation(restaurantsRef);
+  const [restoRef, setrestoRef] = useState(null);
+  const restoForm = useFirestoreDocumentMutation(restoRef);
   const queryLocations = useFirestoreQuery(["locations"], locationsRef, {
     subscribe: true,
   });
+
+  useEffect(() => {
+    form.setFieldsValue(props.editDetails);
+    if (get(props, "editDetails.id", false)) {
+      setrestoRef(
+        doc(collection(db, "restaurants"), get(props, "editDetails.id", ""))
+      );
+    }
+  }, [props.editDetails]);
 
   useEffect(() => {
     if (queryLocations.isFetched) {
@@ -40,45 +44,37 @@ const RestaurantForm = (props) => {
   useEffect(() => {
     if (restoForm.isSuccess) {
       api.success({
-        message: `Restaurant Created`,
-        description: `Restaurant ${restoForm.variables.name} created successfully`,
+        message: `Restaurant Updated`,
+        description: `Restaurant ${restoForm.variables.name} updated successfully`,
         placement: "bottomRight",
         style: {
           backgroundColor: "#f6ffed",
           border: "1px solid #b7eb8f",
         },
       });
-      setrestState(initial);
+      setrestoRef(null);
     } else if (restoForm.isError) {
       api.error({
-        message: `Restaurant creation failed !`,
+        message: `Restaurant updation failed !`,
         description: `Please try again later`,
         placement: "bottomRight",
       });
     }
   }, [restoForm.isSuccess]);
 
-  const handleState = (value, type) => {
-    setrestState({
-      ...restState,
-      [type]: value,
-    });
+  const onFinish = (values) => {
+    restoForm.mutate({ ...values, id: props.editDetails.id });
   };
 
-  const handleSubmit = () => {
-    restoForm.mutate(restState);
-  };
   return (
-    <>
-      <Form layout="vertical" hideRequiredMark>
-        <Form.Item name="restaurant" label="Restaurant">
+    <Spin spinning={restoForm.isLoading}>
+      <Form layout="vertical" form={form} onFinish={onFinish}>
+        <Form.Item name="name" label="Restaurant">
           <Input
             style={{
               width: "100%",
             }}
             placeholder="Please enter restaurant name"
-            onChange={(e) => handleState(e.target.value, "name")}
-            value={restState.name}
           />
         </Form.Item>
         <Form.Item
@@ -91,11 +87,7 @@ const RestaurantForm = (props) => {
             },
           ]}
         >
-          <Select
-            placeholder="Please select a location"
-            onChange={(value) => handleState(value, "location")}
-            value={restState.location}
-          >
+          <Select placeholder="Please select a location">
             {locationsList.map((rest) => {
               return (
                 <Option
@@ -123,23 +115,18 @@ const RestaurantForm = (props) => {
               width: "100%",
             }}
             placeholder="Please enter phone"
-            onChange={(e) => handleState(e.target.value, "phone")}
-            value={restState.phone}
           />
         </Form.Item>
+        <Space>
+          <Button onClick={props.onClose}>Cancel</Button>
+          <Button type="primary" htmlType="submit">
+            Submit
+          </Button>
+        </Space>
       </Form>
-      <Space>
-        <Button onClick={props.onClose}>Cancel</Button>
-        <Button
-          onClick={handleSubmit}
-          type="primary"
-          loading={restoForm.isLoading}
-        >
-          Submit
-        </Button>
-      </Space>
+
       {contextHolder}
-    </>
+    </Spin>
   );
 };
-export default RestaurantForm;
+export default RestaurantEditForm;
