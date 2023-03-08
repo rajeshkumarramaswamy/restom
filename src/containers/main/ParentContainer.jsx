@@ -84,7 +84,7 @@ const ParentContainer = (props) => {
               ) : parentObject.module === "2" ? (
                 <DriverForm onClose={onClose} />
               ) : parentObject.module === "3" ? (
-                <ExportForm />
+                <ExportForm onClose={onClose} />
               ) : null
             ) : null}
           </div>

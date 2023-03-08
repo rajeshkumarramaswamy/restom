@@ -11,9 +11,9 @@ import RenderControl from "../../components/common/RenderControl";
 import { db } from "../../utils/firebase/firebaseConfig";
 import dayjs from "dayjs";
 import ComponentToPrint, { ComponentPrint } from "../common/ComponentToPrint";
-import ReactToPrint from "react-to-print";
-import { StyledDiv } from "../common/StyledGuide";
 import { PDFViewer } from "@react-pdf/renderer";
+import Invoice from "../../containers/invoice/Invoice";
+import { StyledDiv } from "../common/StyledGuide";
 const { RangePicker } = DatePicker;
 const initial = {
   restaurant: "",
@@ -33,6 +33,7 @@ const ExportForm = (props) => {
   const [reports, setreports] = useState({
     alldocs: [],
     total: 0,
+    currentDate: null,
   });
 
   const queryRestaurants = useFirestoreQuery(
@@ -78,11 +79,12 @@ const ExportForm = (props) => {
     const ordersRef = collection(db, "orders");
     const orderQuery = query(
       ordersRef,
-      where("name", "==", exportState.restaurant),
-      where("location", "==", exportState.location),
-      where("date", ">=", exportState.dateFrom),
-      where("date", "<=", exportState.dateTo)
+      where("name", "==", exportState.restaurant)
+      // where("location", "==", exportState.location)
+      // where("date", ">=", exportState.dateFrom),
+      // where("date", "<=", exportState.dateTo)
     );
+
     const finalResult = await getDocs(orderQuery);
     let finalArray = [];
     finalResult.forEach((doc) => {
@@ -92,6 +94,11 @@ const ExportForm = (props) => {
     setreports({
       alldocs: finalArray,
       total: totalSum,
+      currentDate: dayjs(),
+    });
+    setexportState({
+      ...exportState,
+      hitCall: true,
     });
   };
 
@@ -111,14 +118,14 @@ const ExportForm = (props) => {
   };
 
   const handleSubmit = () => {
-    reportApi();
     // setexportState({
     //   ...exportState,
     //   hitCall: true,
     // });
+    reportApi();
   };
 
-  console.log("reports", reports);
+  console.log("orderState", reports);
 
   return (
     // <RenderControl
@@ -126,130 +133,139 @@ const ExportForm = (props) => {
     //   ready={queryRestaurants.isFetched && queryLocations.isFetched}
     // >
     <>
-      <Form layout="vertical">
-        <Form.Item
-          name="restaurant"
-          label="Restaurant"
-          rules={[
-            {
-              required: true,
-              message: "Please select restaurant",
-            },
-          ]}
-        >
-          <Select
-            placeholder="Please select a restaurant"
-            onChange={(value) => onSelectChange(value, "restaurant")}
-            value={exportState.restaurant}
+      <>
+        <Form layout="vertical">
+          <Form.Item
+            name="restaurant"
+            label="Restaurant"
+            rules={[
+              {
+                required: true,
+                message: "Please select restaurant",
+              },
+            ]}
           >
-            {restoList?.map((rest) => {
-              return (
-                <Option
-                  key={get(rest, "name", "")}
-                  value={get(rest, "name", "")}
-                >
-                  {get(rest, "name", "")}
-                </Option>
-              );
-            })}
-          </Select>
-        </Form.Item>
-        <Form.Item
-          name="location"
-          label="Location"
-          rules={[
-            {
-              required: true,
-              message: "Please select location",
-            },
-          ]}
-        >
-          <Select
-            placeholder="Please select a location"
-            onChange={(value) => onSelectChange(value, "location")}
-            value={exportState.location}
-          >
-            {locationList?.map((rest) => {
-              return (
-                <Option
-                  key={get(rest, "name", "")}
-                  value={get(rest, "name", "")}
-                >
-                  {get(rest, "name", "")}
-                </Option>
-              );
-            })}
-          </Select>
-        </Form.Item>
-        <Row>
-          <Form.Item label="Report Type">
-            <Radio.Group>
-              <Radio
-                defaultChecked={exportState.reportType}
-                onChange={() =>
-                  setexportState({ ...exportState, reportType: true })
-                }
-              >
-                Day report{" "}
-              </Radio>
-              <Radio
-                value={!exportState.reportType}
-                onChange={() =>
-                  setexportState({ ...exportState, reportType: false })
-                }
-              >
-                Date range report{" "}
-              </Radio>
-            </Radio.Group>
+            <Select
+              placeholder="Please select a restaurant"
+              onChange={(value) => onSelectChange(value, "restaurant")}
+              value={exportState.restaurant}
+            >
+              {restoList?.map((rest) => {
+                return (
+                  <Option
+                    key={get(rest, "name", "")}
+                    value={get(rest, "name", "")}
+                  >
+                    {get(rest, "name", "")}
+                  </Option>
+                );
+              })}
+            </Select>
           </Form.Item>
-        </Row>
+          <Form.Item
+            name="location"
+            label="Location"
+            rules={[
+              {
+                required: true,
+                message: "Please select location",
+              },
+            ]}
+          >
+            <Select
+              placeholder="Please select a location"
+              onChange={(value) => onSelectChange(value, "location")}
+              value={exportState.location}
+            >
+              {locationList?.map((rest) => {
+                return (
+                  <Option
+                    key={get(rest, "name", "")}
+                    value={get(rest, "name", "")}
+                  >
+                    {get(rest, "name", "")}
+                  </Option>
+                );
+              })}
+            </Select>
+          </Form.Item>
+          <Row>
+            <Form.Item label="Report Type">
+              <Radio.Group>
+                <Radio
+                  defaultChecked={exportState.reportType}
+                  onChange={() =>
+                    setexportState({ ...exportState, reportType: true })
+                  }
+                >
+                  Day report{" "}
+                </Radio>
+                <Radio
+                  value={!exportState.reportType}
+                  onChange={() =>
+                    setexportState({ ...exportState, reportType: false })
+                  }
+                >
+                  Date range report{" "}
+                </Radio>
+              </Radio.Group>
+            </Form.Item>
+          </Row>
 
-        <Row>
-          {exportState.reportType ? (
-            <Col span={12}>
-              <Form.Item
-                name="dateReport"
-                label="Select date"
-                rules={[
-                  {
-                    required: true,
-                    message: "Day report",
-                  },
-                ]}
-              >
-                <DatePicker format={"DD/MM/YYYY"} onChange={handleTimeChange} />
-              </Form.Item>
-            </Col>
-          ) : (
-            <Col span={12}>
-              <Form.Item
-                name="date"
-                label="Dates between"
-                rules={[
-                  {
-                    required: true,
-                    message: "Please select date",
-                  },
-                ]}
-              >
-                <RangePicker
-                  onChange={handleCalendarChange}
-                  value={exportState.date}
-                />
-              </Form.Item>
-            </Col>
-          )}
-        </Row>
-      </Form>
-      <Space>
-        <Button onClick={props.onClose}>Cancel</Button>
-        <Button type="primary" onClick={handleSubmit}>
-          Export
-        </Button>
-      </Space>
-      <PDFViewer>
-        <ComponentToPrint />
-      </PDFViewer>
+          <Row>
+            {exportState.reportType ? (
+              <Col span={12}>
+                <Form.Item
+                  name="dateReport"
+                  label="Select date"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Day report",
+                    },
+                  ]}
+                >
+                  <DatePicker
+                    format={"DD/MM/YYYY"}
+                    onChange={handleTimeChange}
+                  />
+                </Form.Item>
+              </Col>
+            ) : (
+              <Col span={12}>
+                <Form.Item
+                  name="date"
+                  label="Dates between"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please select date",
+                    },
+                  ]}
+                >
+                  <RangePicker
+                    onChange={handleCalendarChange}
+                    value={exportState.date}
+                  />
+                </Form.Item>
+              </Col>
+            )}
+          </Row>
+        </Form>
+        <Space>
+          <Button onClick={props.onClose}>Cancel</Button>
+          <Button type="primary" onClick={handleSubmit}>
+            Export
+          </Button>
+        </Space>
+      </>
+      <StyledDiv position="absolute" bottom="60px">
+        {exportState.hitCall && reports.alldocs.length > 0 && (
+          <PDFViewer>
+            <Invoice invoice={reports} />
+          </PDFViewer>
+        )}
+      </StyledDiv>
     </>
     // </RenderControl>
   );
