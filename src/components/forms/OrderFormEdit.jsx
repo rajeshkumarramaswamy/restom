@@ -44,7 +44,7 @@ const OrderFormEdit = (props) => {
   const [orderRef, setorderRef] = useState(null);
 
   const orderMutate = useFirestoreDocumentMutation(orderRef, { merge: true });
-  const [orderState, setorderState] = useState(props.editDetails);
+  const [orderState, setorderState] = useState(intial);
   const queryRestaurants = useFirestoreQuery(["retaurants"], restaurantsRef, {
     subscribe: true,
   });
@@ -105,6 +105,10 @@ const OrderFormEdit = (props) => {
     }
   }, [orderRef]);
 
+  useEffect(() => {
+    setorderState(props.editDetails);
+  }, [props.editDetails]);
+
   const dateFunction = (value, dateString) => {
     setorderState({
       ...orderState,
@@ -127,7 +131,7 @@ const OrderFormEdit = (props) => {
   const handleSubmit = () => {
     setorderRef(doc(collection(db, "orders"), props.editDetails.id));
   };
-
+  console.log("props", props.editDetails, orderState);
   return (
     <>
       <Form layout="vertical" hideRequiredMark>
@@ -352,6 +356,7 @@ const OrderFormEdit = (props) => {
                 style={{
                   width: "100%",
                 }}
+                type="number"
                 placeholder="Please enter value"
                 onChange={(e) => handleTextInput(e.target.value, "value")}
                 value={orderState.value}

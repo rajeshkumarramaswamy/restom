@@ -11,6 +11,8 @@ import OrderFormEdit from "../../components/forms/OrderFormEdit";
 const statusColor = {
   completed: "green",
   failed: "red",
+  inprogress: "orange",
+  hold: "red",
 };
 
 const initial = {
@@ -59,21 +61,25 @@ const OrdersTable = () => {
       title: "Miles",
       dataIndex: "miles",
       key: "miles",
+      render: (text) => <div>{`${text}Kms`}</div>,
     },
     {
       title: "MileageStart",
       dataIndex: "mileageStart",
       key: "mileageStart",
+      render: (text) => <div>{`${text}Kms`}</div>,
     },
     {
       title: "MileageEnd",
       dataIndex: "mileageEnd",
       key: "mileageEnd",
+      render: (text) => <div>{`${text}Kms`}</div>,
     },
     {
       title: "Value",
       dataIndex: "value",
       key: "value",
+      render: (text) => <div>{`Rs.${text}`}</div>,
     },
     {
       title: "Date",

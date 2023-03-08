@@ -1,34 +1,40 @@
 import { useFirestoreQuery } from "@react-query-firebase/firestore";
-import {
-  Button,
-  Col,
-  DatePicker,
-  TimePicker,
-  Form,
-  Radio,
-  Row,
-  Select,
-  Space,
-} from "antd";
+import { Button, Col, DatePicker, Form, Radio, Row, Select, Space } from "antd";
 import { get } from "lodash";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   locationsRef,
   restaurantsRef,
 } from "../../utils/services/ReactQueryServices";
+import { collection, query, where, getDocs } from "firebase/firestore";
 import RenderControl from "../../components/common/RenderControl";
+import { db } from "../../utils/firebase/firebaseConfig";
+import dayjs from "dayjs";
+import ComponentToPrint, { ComponentPrint } from "../common/ComponentToPrint";
+import ReactToPrint from "react-to-print";
+import { StyledDiv } from "../common/StyledGuide";
+import { PDFViewer } from "@react-pdf/renderer";
 const { RangePicker } = DatePicker;
 const initial = {
   restaurant: "",
   location: "",
-  date: "",
+  dateFrom: "",
+  dateTo: "",
   reportType: true,
+  hitCall: false,
 };
+
 const { Option } = Select;
 const ExportForm = (props) => {
+  const componentRef = useRef();
   const [exportState, setexportState] = useState(initial);
   const [restoList, setrestoList] = useState([]);
   const [locationList, setlocationList] = useState([]);
+  const [reports, setreports] = useState({
+    alldocs: [],
+    total: 0,
+  });
+
   const queryRestaurants = useFirestoreQuery(
     ["retaurants"],
     restaurantsRef,
@@ -68,8 +74,28 @@ const ExportForm = (props) => {
     });
   };
 
+  const reportApi = async () => {
+    const ordersRef = collection(db, "orders");
+    const orderQuery = query(
+      ordersRef,
+      where("name", "==", exportState.restaurant),
+      where("location", "==", exportState.location),
+      where("date", ">=", exportState.dateFrom),
+      where("date", "<=", exportState.dateTo)
+    );
+    const finalResult = await getDocs(orderQuery);
+    let finalArray = [];
+    finalResult.forEach((doc) => {
+      finalArray.push({ id: doc.id, ...doc.data() });
+    });
+    let totalSum = finalArray.reduce((n, { value }) => n + value, 0);
+    setreports({
+      alldocs: finalArray,
+      total: totalSum,
+    });
+  };
+
   const handleCalendarChange = (time, timeString) => {
-    console.log("value", time, timeString);
     // setexportState({
     //   ...exportState,
     //   date: value,
@@ -77,20 +103,29 @@ const ExportForm = (props) => {
   };
 
   const handleTimeChange = (value, dateString) => {
-    console.log("value", value, dateString);
+    setexportState({
+      ...exportState,
+      dateFrom: dayjs(dateString).startOf("date").unix(),
+      dateTo: dayjs(dateString).endOf("date").unix(),
+    });
   };
 
   const handleSubmit = () => {
-    console.log("exportState", exportState);
+    reportApi();
+    // setexportState({
+    //   ...exportState,
+    //   hitCall: true,
+    // });
   };
 
-  console.log("exportState", exportState, restoList, locationList);
+  console.log("reports", reports);
 
   return (
-    <RenderControl
-      loading={!queryRestaurants.isFetched || !queryLocations.isFetched}
-      ready={queryRestaurants.isFetched && queryLocations.isFetched}
-    >
+    // <RenderControl
+    //   loading={!queryRestaurants.isFetched || !queryLocations.isFetched}
+    //   ready={queryRestaurants.isFetched && queryLocations.isFetched}
+    // >
+    <>
       <Form layout="vertical">
         <Form.Item
           name="restaurant"
@@ -171,43 +206,20 @@ const ExportForm = (props) => {
 
         <Row>
           {exportState.reportType ? (
-            <Row gutter={2}>
-              <Col span={12}>
-                <Form.Item
-                  name="dateReport"
-                  label="Select date"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Day report",
-                    },
-                  ]}
-                >
-                  <DatePicker
-                    format={"DD/MM/YYYY"}
-                    onChange={handleTimeChange}
-                  />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item
-                  name="dateReport"
-                  label="Select time"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Day report",
-                    },
-                  ]}
-                >
-                  <TimePicker.RangePicker
-                    showTime
-                    onChange={handleTimeChange}
-                    value={exportState.date}
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
+            <Col span={12}>
+              <Form.Item
+                name="dateReport"
+                label="Select date"
+                rules={[
+                  {
+                    required: true,
+                    message: "Day report",
+                  },
+                ]}
+              >
+                <DatePicker format={"DD/MM/YYYY"} onChange={handleTimeChange} />
+              </Form.Item>
+            </Col>
           ) : (
             <Col span={12}>
               <Form.Item
@@ -235,7 +247,11 @@ const ExportForm = (props) => {
           Export
         </Button>
       </Space>
-    </RenderControl>
+      <PDFViewer>
+        <ComponentToPrint />
+      </PDFViewer>
+    </>
+    // </RenderControl>
   );
 };
 
