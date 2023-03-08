@@ -10,14 +10,13 @@ import { collection, query, where, getDocs } from "firebase/firestore";
 import RenderControl from "../../components/common/RenderControl";
 import { db } from "../../utils/firebase/firebaseConfig";
 import dayjs from "dayjs";
-import ComponentToPrint, { ComponentPrint } from "../common/ComponentToPrint";
 import { PDFViewer } from "@react-pdf/renderer";
 import Invoice from "../../containers/invoice/Invoice";
 import { StyledDiv } from "../common/StyledGuide";
 const { RangePicker } = DatePicker;
 const initial = {
-  restaurant: "",
-  location: "",
+  restaurant: undefined,
+  location: undefined,
   dateFrom: "",
   dateTo: "",
   reportType: true,
@@ -103,6 +102,7 @@ const ExportForm = (props) => {
   };
 
   const handleCalendarChange = (time, timeString) => {
+    console.log("time", time, timeString);
     // setexportState({
     //   ...exportState,
     //   date: value,
@@ -125,7 +125,16 @@ const ExportForm = (props) => {
     reportApi();
   };
 
-  console.log("orderState", reports);
+  const resetPage = () => {
+    setexportState(initial);
+    setreports({
+      alldocs: [],
+      total: 0,
+      currentDate: null,
+    });
+  };
+
+  console.log("exportState", exportState);
 
   return (
     // <RenderControl
@@ -149,6 +158,8 @@ const ExportForm = (props) => {
               placeholder="Please select a restaurant"
               onChange={(value) => onSelectChange(value, "restaurant")}
               value={exportState.restaurant}
+              allowClear
+              onClear={resetPage}
             >
               {restoList?.map((rest) => {
                 return (
@@ -176,6 +187,7 @@ const ExportForm = (props) => {
               placeholder="Please select a location"
               onChange={(value) => onSelectChange(value, "location")}
               value={exportState.location}
+              onClear={resetPage}
             >
               {locationList?.map((rest) => {
                 return (
@@ -254,9 +266,11 @@ const ExportForm = (props) => {
         </Form>
         <Space>
           <Button onClick={props.onClose}>Cancel</Button>
+
           <Button type="primary" onClick={handleSubmit}>
             Export
           </Button>
+          <Button onClick={resetPage}>Reset</Button>
         </Space>
       </>
       <StyledDiv position="absolute" bottom="60px">

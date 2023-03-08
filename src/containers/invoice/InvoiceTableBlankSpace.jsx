@@ -13,22 +13,22 @@ const styles = StyleSheet.create({
     color: "white",
   },
   description: {
-    width: "60%",
+    width: "25%",
     borderRightColor: borderColor,
     borderRightWidth: 1,
   },
   qty: {
-    width: "10%",
+    width: "25%",
     borderRightColor: borderColor,
     borderRightWidth: 1,
   },
   rate: {
-    width: "15%",
+    width: "25%",
     borderRightColor: borderColor,
     borderRightWidth: 1,
   },
   amount: {
-    width: "15%",
+    width: "25%",
   },
 });
 
