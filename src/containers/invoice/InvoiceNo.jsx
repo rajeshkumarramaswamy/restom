@@ -25,10 +25,6 @@ const InvoiceNo = () => {
   let currentData = new Date().toLocaleString();
   return (
     <Fragment>
-      <View style={styles.invoiceNoContainer}>
-        <Text style={styles.label}>Invoice No:</Text>
-        <Text style={styles.invoiceDate}>sampleId</Text>
-      </View>
       <View style={styles.invoiceDateContainer}>
         <Text style={styles.label}>Date: </Text>
         <Text>{currentData}</Text>
