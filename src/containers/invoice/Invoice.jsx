@@ -4,7 +4,7 @@ import InvoiceTitle from "./InvoiceTitle";
 import BillTo from "./BillTo";
 import InvoiceNo from "./InvoiceNo";
 import InvoiceItemsTable from "./InvoiceItemsTable";
-// import InvoiceThankYouMsg from "./InvoiceThankYouMsg";
+import InvoiceThankYouMsg from "./InvoiceThankYouMsg";
 import logo from "../../assets/xeat_logo.png";
 
 const styles = StyleSheet.create({
@@ -25,15 +25,15 @@ const styles = StyleSheet.create({
   },
 });
 
-const Invoice = ({ invoice }) => {
+const Invoice = (props) => {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
         <Image style={styles.logo} src={logo} />
         <InvoiceTitle title="Xeat Delivery Partner" />
-        {/* <InvoiceNo currentDate={invoice.currentDate} /> */}
-        <InvoiceItemsTable invoice={invoice} />
-        {/* <InvoiceThankYouMsg /> */}
+        <InvoiceNo invoice={props.invoice} />
+        <InvoiceItemsTable invoice={props.invoice} />
+        <InvoiceThankYouMsg />
       </Page>
     </Document>
   );

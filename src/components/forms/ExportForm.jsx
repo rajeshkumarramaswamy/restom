@@ -1,5 +1,16 @@
 import { useFirestoreQuery } from "@react-query-firebase/firestore";
-import { Button, Col, DatePicker, Form, Radio, Row, Select, Space } from "antd";
+import {
+  Button,
+  Col,
+  DatePicker,
+  Form,
+  notification,
+  Radio,
+  Row,
+  Select,
+  Space,
+  Spin,
+} from "antd";
 import { get } from "lodash";
 import React, { useState } from "react";
 import {
@@ -7,27 +18,31 @@ import {
   restaurantsRef,
 } from "../../utils/services/ReactQueryServices";
 import { collection, query, where, getDocs } from "firebase/firestore";
-import RenderControl from "../../components/common/RenderControl";
 import { db } from "../../utils/firebase/firebaseConfig";
 import dayjs from "dayjs";
 import { PDFViewer } from "@react-pdf/renderer";
 import Invoice from "../../containers/invoice/Invoice";
 import { StyledDiv } from "../common/StyledGuide";
+import ErrorBoundary from "antd/es/alert/ErrorBoundary";
 const { RangePicker } = DatePicker;
 const initial = {
-  restaurant: undefined,
-  location: undefined,
+  restaurant: "",
+  location: "",
   dateFrom: "",
   dateTo: "",
   reportType: true,
   hitCall: false,
+  loading: false,
 };
 
 const { Option } = Select;
 const ExportForm = (props) => {
+  const [form] = Form.useForm();
   const [exportState, setexportState] = useState(initial);
   const [restoList, setrestoList] = useState([]);
   const [locationList, setlocationList] = useState([]);
+  const [api, contextHolder] = notification.useNotification();
+
   const [reports, setreports] = useState({
     alldocs: [],
     total: 0,
@@ -79,33 +94,44 @@ const ExportForm = (props) => {
   };
 
   const reportApi = async () => {
-    const ordersRef = collection(db, "orders");
-    const orderQuery = query(
-      ordersRef,
-      where("name", "==", exportState.restaurant || "")
-      // where("location", "==", exportState.location || ""),
-      // where("date", ">=", exportState.dateFrom || ""),
-      // where("date", "<=", exportState.dateTo || "")
-    );
-
-    const finalResult = await getDocs(orderQuery);
-    let finalArray = [];
-    finalResult.forEach((doc) => {
-      finalArray.push({ id: doc.id, ...doc.data() });
-    });
-    let totalSum = finalArray.reduce((n, { value }) => n + value, 0);
-    setreports({
-      alldocs: finalArray,
-      total: totalSum,
-      currentDate: dayjs(),
-    });
-    setexportState({
-      ...exportState,
-      hitCall: true,
-    });
+    const queryContraints = [];
+    if (exportState.restaurant !== "")
+      queryContraints.push(where("name", "==", exportState.restaurant));
+    if (exportState.location !== "")
+      queryContraints.push(where("location", "==", exportState.location));
+    if (exportState.dateFrom !== "")
+      queryContraints.push(where("date", ">", exportState.dateFrom));
+    if (exportState.dateTo !== "")
+      queryContraints.push(where("date", "<", exportState.dateTo));
+    const orderQuery = query(collection(db, "orders"), ...queryContraints);
+    const finalResult = await getDocs(orderQuery)
+      .then((response) => {
+        let finalArray = [];
+        response.forEach((doc) => {
+          finalArray.push({ id: doc.id, ...doc.data() });
+        });
+        let totalSum = finalArray.reduce((n, { value }) => n + value, 0);
+        setreports({
+          alldocs: finalArray,
+          total: totalSum,
+          currentDate: dayjs().format("LLL"),
+        });
+        setexportState({
+          ...exportState,
+          hitCall: true,
+          loading: false,
+        });
+      })
+      .catch((error) => {
+        api.error({
+          message: `Report generation failed !`,
+          description: `Something went wrong while pulling the report. Please contact the administrator.`,
+          placement: "bottomRight",
+        });
+      });
   };
 
-  const handleCalendarChange = (time, timeString) => {
+  const handleCalendarChange = (time) => {
     setexportState({
       ...exportState,
       dateFrom: dayjs(time[0]).startOf("date").unix(),
@@ -122,14 +148,15 @@ const ExportForm = (props) => {
   };
 
   const handleSubmit = () => {
-    // setexportState({
-    //   ...exportState,
-    //   hitCall: true,
-    // });
+    setexportState({
+      ...exportState,
+      loading: true,
+    });
     reportApi();
   };
 
   const resetPage = () => {
+    form.resetFields();
     setexportState(initial);
     setreports({
       alldocs: [],
@@ -138,16 +165,10 @@ const ExportForm = (props) => {
     });
   };
 
-  console.log("exportState", exportState, reports);
-
   return (
-    // <RenderControl
-    //   loading={!queryRestaurants.isFetched || !queryLocations.isFetched}
-    //   ready={queryRestaurants.isFetched && queryLocations.isFetched}
-    // >
     <>
       <>
-        <Form layout="vertical">
+        <Form layout="vertical" form={form}>
           <Form.Item
             name="restaurant"
             label="Restaurant"
@@ -278,21 +299,25 @@ const ExportForm = (props) => {
         </Space>
       </>
       <StyledDiv position="absolute" bottom={"60px"}>
-        {exportState.hitCall && reports.alldocs.length > 0 ? (
-          <PDFViewer>
-            <Invoice invoice={reports} />
-          </PDFViewer>
-        ) : (
-          exportState.hitCall &&
-          reports.alldocs.length === 0 && (
-            <StyledDiv fontWeight="600" fontSize="30px" fontColor="lightgray">
-              No reports found
-            </StyledDiv>
-          )
-        )}
+        {/* <ErrorBoundary> */}
+        <Spin spinning={exportState.loading}>
+          {exportState.hitCall && reports.alldocs.length > 0 ? (
+            <PDFViewer>
+              <Invoice invoice={reports} />
+            </PDFViewer>
+          ) : (
+            exportState.hitCall &&
+            reports.alldocs.length === 0 && (
+              <StyledDiv fontWeight="600" fontSize="30px" fontColor="lightgray">
+                No reports found
+              </StyledDiv>
+            )
+          )}
+        </Spin>
+        {/* </ErrorBoundary> */}
       </StyledDiv>
+      {contextHolder}
     </>
-    // </RenderControl>
   );
 };
 

@@ -2,6 +2,7 @@ import { Layout, theme } from "antd";
 import { useQuery } from "react-query";
 import ParentContainer from "../containers/main/ParentContainer";
 import { GetToken } from "../utils/api/api";
+import Xeat from "../assets/xeat_logo_3.png";
 const { Header, Content, Footer } = Layout;
 const Grid = () => {
   // const getToken = useQuery("token", GetToken, {
@@ -21,7 +22,8 @@ const Grid = () => {
           width: "100%",
         }}
       >
-        <div
+        <img className="xeat_logo" src={Xeat} />
+        {/* <div
           style={{
             float: "left",
             width: 120,
@@ -29,7 +31,7 @@ const Grid = () => {
             margin: "16px 24px 16px 0",
             background: "rgba(255, 255, 255, 0.2)",
           }}
-        />
+        /> */}
       </Header>
       <Content
         className="site-layout"

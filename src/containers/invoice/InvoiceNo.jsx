@@ -5,11 +5,11 @@ const styles = StyleSheet.create({
   invoiceNoContainer: {
     flexDirection: "row",
     marginTop: 36,
-    justifyContent: "flex-end",
+    justifyContent: "space-between",
   },
   invoiceDateContainer: {
     flexDirection: "row",
-    justifyContent: "flex-end",
+    justifyContent: "space-between",
   },
   invoiceDate: {
     fontSize: 12,
@@ -20,16 +20,18 @@ const styles = StyleSheet.create({
   },
 });
 
-const InvoiceNo = (props) => {
+const InvoiceNo = () => {
+  // console.log("invoiceNo", props);
+  let currentData = new Date().toLocaleString();
   return (
     <Fragment>
       <View style={styles.invoiceNoContainer}>
         <Text style={styles.label}>Invoice No:</Text>
-        <Text style={styles.invoiceDate}>{}</Text>
+        <Text style={styles.invoiceDate}>sampleId</Text>
       </View>
       <View style={styles.invoiceDateContainer}>
         <Text style={styles.label}>Date: </Text>
-        <Text>{props.currentDate}</Text>
+        <Text>{currentData}</Text>
       </View>
     </Fragment>
   );

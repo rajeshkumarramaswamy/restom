@@ -6,7 +6,6 @@ import OrdersTable from "../orders/OrdersTable";
 import OrderForm from "../../components/forms/OrderForm";
 import DriverForm from "../../components/forms/DriverForm";
 import ExportForm from "../../components/forms/ExportForm";
-import EditableTable from "../restaurants/EditableTable";
 import DriversEditableTable from "../drivers/DriversEditableTable";
 import RestaurantsTable from "../restaurants/RestaurantsTable";
 
