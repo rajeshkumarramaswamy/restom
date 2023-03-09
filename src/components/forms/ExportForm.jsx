@@ -28,8 +28,8 @@ const { RangePicker } = DatePicker;
 const initial = {
   restaurant: "",
   location: "",
-  dateFrom: "",
-  dateTo: "",
+  dateFrom: 0,
+  dateTo: 0,
   reportType: true,
   hitCall: false,
   loading: false,
@@ -99,11 +99,12 @@ const ExportForm = (props) => {
       queryContraints.push(where("name", "==", exportState.restaurant));
     if (exportState.location !== "")
       queryContraints.push(where("location", "==", exportState.location));
-    if (exportState.dateFrom !== "")
-      queryContraints.push(where("date", ">", exportState.dateFrom));
-    if (exportState.dateTo !== "")
-      queryContraints.push(where("date", "<", exportState.dateTo));
+    if (exportState.dateFrom !== 0)
+      queryContraints.push(where("date", ">", parseInt(exportState.dateFrom)));
+    if (exportState.dateTo !== 0)
+      queryContraints.push(where("date", "<", parseInt(exportState.dateTo)));
     const orderQuery = query(collection(db, "orders"), ...queryContraints);
+    console.log("orderQuery", orderQuery);
     const finalResult = await getDocs(orderQuery)
       .then((response) => {
         let finalArray = [];
@@ -128,22 +129,23 @@ const ExportForm = (props) => {
           description: `Something went wrong while pulling the report. Please contact the administrator.`,
           placement: "bottomRight",
         });
+        resetPage();
       });
   };
 
   const handleCalendarChange = (time) => {
     setexportState({
       ...exportState,
-      dateFrom: dayjs(time[0]).startOf("date").unix(),
-      dateTo: dayjs(time[1]).endOf("date").unix(),
+      dateFrom: parseInt(dayjs(time[0]).startOf("date").unix()),
+      dateTo: parseInt(dayjs(time[1]).endOf("date").unix()),
     });
   };
 
   const handleTimeChange = (value, dateString) => {
     setexportState({
       ...exportState,
-      dateFrom: dayjs(dateString).startOf("date").unix(),
-      dateTo: dayjs(dateString).endOf("date").unix(),
+      dateFrom: parseInt(dayjs(value).startOf("date").unix()),
+      dateTo: parseInt(dayjs(value).endOf("date").unix()),
     });
   };
 
@@ -164,6 +166,8 @@ const ExportForm = (props) => {
       currentDate: null,
     });
   };
+
+  console.log("render", exportState);
 
   return (
     <>
@@ -299,7 +303,6 @@ const ExportForm = (props) => {
         </Space>
       </>
       <StyledDiv position="absolute" bottom={"60px"}>
-        {/* <ErrorBoundary> */}
         <Spin spinning={exportState.loading}>
           {exportState.hitCall && reports.alldocs.length > 0 ? (
             <PDFViewer>
@@ -314,7 +317,6 @@ const ExportForm = (props) => {
             )
           )}
         </Spin>
-        {/* </ErrorBoundary> */}
       </StyledDiv>
       {contextHolder}
     </>
