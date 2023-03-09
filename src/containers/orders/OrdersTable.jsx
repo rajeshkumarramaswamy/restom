@@ -61,6 +61,7 @@ const OrdersTable = () => {
       title: "Miles",
       dataIndex: "miles",
       key: "miles",
+      sorter: (a, b) => a.miles - b.miles,
       render: (text) => <div>{`${text}Kms`}</div>,
     },
     {
@@ -79,6 +80,7 @@ const OrdersTable = () => {
       title: "Value",
       dataIndex: "value",
       key: "value",
+      sorter: (a, b) => a.value - b.value,
       render: (text) => <div>{`Rs.${text}`}</div>,
     },
     {
@@ -137,6 +139,7 @@ const OrdersTable = () => {
           columns={columns}
           dataSource={fetchOrders}
           loading={queryOrders.isLoading}
+          size="small"
           scroll={{
             y: 380,
           }}

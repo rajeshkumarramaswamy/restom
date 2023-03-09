@@ -5,6 +5,7 @@ import {
   PrinterTwoTone,
   CarTwoTone,
   ShopTwoTone,
+  TagTwoTone,
 } from "@ant-design/icons";
 import { Dropdown, Space, Button } from "antd";
 
@@ -26,8 +27,13 @@ const items = [
   },
 
   {
-    label: "Export",
+    label: "Add Location",
     key: "3",
+    icon: <TagTwoTone />,
+  },
+  {
+    label: "Export",
+    key: "4",
     icon: <PrinterTwoTone />,
   },
 ];

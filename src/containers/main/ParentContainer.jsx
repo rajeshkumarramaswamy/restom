@@ -8,7 +8,8 @@ import DriverForm from "../../components/forms/DriverForm";
 import ExportForm from "../../components/forms/ExportForm";
 import DriversEditableTable from "../drivers/DriversEditableTable";
 import RestaurantsTable from "../restaurants/RestaurantsTable";
-
+import LocationTable from "../locations/LocationTable";
+import LocationsForm from "../../components/forms/LocationsForm";
 let initialState = {
   open: false,
   module: "",
@@ -48,6 +49,11 @@ const ParentContainer = (props) => {
       key: 3,
       children: <DriversEditableTable />,
     },
+    {
+      label: "Locations",
+      key: 4,
+      children: <LocationTable />,
+    },
   ];
 
   return (
@@ -65,6 +71,8 @@ const ParentContainer = (props) => {
               : parentObject.module === "2"
               ? "Add Driver"
               : parentObject.module === "3"
+              ? "Add Location"
+              : parentObject.module === "4"
               ? "Export"
               : null
           }
@@ -84,6 +92,8 @@ const ParentContainer = (props) => {
               ) : parentObject.module === "2" ? (
                 <DriverForm onClose={onClose} />
               ) : parentObject.module === "3" ? (
+                <LocationsForm onClose={onClose} />
+              ) : parentObject.module === "4" ? (
                 <ExportForm onClose={onClose} />
               ) : null
             ) : null}

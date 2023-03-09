@@ -45,6 +45,7 @@ const DriversTable = () => {
       columns={columns}
       dataSource={fetchDrivers}
       loading={queryDrivers.isLoading}
+      size="small"
       scroll={{
         y: 375,
       }}
