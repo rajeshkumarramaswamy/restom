@@ -26,7 +26,10 @@ const InvoiceItemsTable = ({ invoice }) => {
       <InvoiceTableBlankSpace
         rowsCount={tableRowsCount - get(invoice, "alldocs", []).length}
       />
-      <InvoiceTableFooter total={invoice.total} />
+      <InvoiceTableFooter
+        total={invoice.total}
+        deliveryCharges={invoice.deliveryCharges}
+      />
     </View>
   );
 };

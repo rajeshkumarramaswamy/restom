@@ -16,8 +16,8 @@ import {
 } from "antd";
 import dayjs from "dayjs";
 import { get } from "lodash";
-import React, { useState, useEffect, useId } from "react";
-import { epoch, modifySelectData } from "../../utils/common";
+import React, { useState, useEffect } from "react";
+import { modifySelectData } from "../../utils/common";
 import {
   driversRef,
   locationsRef,
@@ -25,18 +25,6 @@ import {
   restaurantsRef,
 } from "../../utils/services/ReactQueryServices";
 const { Option } = Select;
-
-let intial = {
-  name: "",
-  location: "",
-  driver: "",
-  miles: "",
-  mileageStart: "",
-  mileageEnd: "",
-  status: "",
-  date: "",
-  value: "",
-};
 
 const OrderForm = (props) => {
   const [form] = Form.useForm();
@@ -119,7 +107,7 @@ const OrderForm = (props) => {
     orderMutate.mutate({
       ...values,
       orderNumber: `XE${dayjs().unix()}`,
-      date: epoch(values.date),
+      date: dayjs(values.date).unix(),
       mileageEnd: parseInt(values.mileageEnd),
       mileageStart: parseInt(values.mileageStart),
       value: parseInt(values.value),
