@@ -2,7 +2,7 @@ import { Layout, theme } from "antd";
 import { useQuery } from "react-query";
 import ParentContainer from "../containers/main/ParentContainer";
 import { GetToken } from "../utils/api/api";
-import Xeat from "../assets/xeat_logo_3.png";
+import Xeat from "../assets/xeat_delivery_partner_logo.png";
 const { Header, Content, Footer } = Layout;
 const Grid = () => {
   // const getToken = useQuery("token", GetToken, {
