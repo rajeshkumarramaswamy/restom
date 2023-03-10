@@ -121,6 +121,8 @@ const OrdersTable = () => {
       title: "Date",
       dataIndex: "date",
       key: "date",
+      sorter: (a, b) => a.value - b.value,
+      defaultSortOrder: "descend",
       render: (_, render) => {
         return <>{dayjs.unix(render.date).format("MMM D, YYYY h:mm A")}</>;
       },
