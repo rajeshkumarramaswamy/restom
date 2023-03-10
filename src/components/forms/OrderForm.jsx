@@ -118,6 +118,13 @@ const OrderForm = (props) => {
 
   const onValuesChange = (changedValues, allValues) => {
     const fieldName = Object.keys(changedValues)[0];
+    if (fieldName === "date") {
+      console.log(
+        "values",
+        changedValues.date,
+        dayjs(changedValues.date).unix()
+      );
+    }
     if (fieldName === "mileageEnd") {
       const end = parseInt(
         changedValues["mileageEnd"] || allValues["mileageEnd"] || 0
@@ -227,7 +234,16 @@ const OrderForm = (props) => {
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="paid" label="Order paid">
+              <Form.Item
+                name="paid"
+                label="Order paid"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please select payment status",
+                  },
+                ]}
+              >
                 <Select placeholder="Please select payment status">
                   <Option value={true}>Yes</Option>
                   <Option value={false}>No</Option>
@@ -237,14 +253,32 @@ const OrderForm = (props) => {
           </Row>
           <Row gutter={16}>
             <Col span={24}>
-              <Form.Item label="Customer location" name="customerLocation">
+              <Form.Item
+                label="Customer location"
+                name="customerLocation"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please enter customer location",
+                  },
+                ]}
+              >
                 <Input placeholder="Customer location" />
               </Form.Item>
             </Col>
           </Row>
           <Row gutter={16}>
             <Col span={24}>
-              <Form.Item label="Customer number" name="customerNumber">
+              <Form.Item
+                label="Customer number"
+                name="customerNumber"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please enter customer number",
+                  },
+                ]}
+              >
                 <Input placeholder="Customer Numbers" />
               </Form.Item>
             </Col>

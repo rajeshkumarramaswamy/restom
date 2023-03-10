@@ -4,9 +4,9 @@ import { EditOutlined } from "@ant-design/icons";
 import { get } from "lodash";
 import { useFirestoreQuery } from "@react-query-firebase/firestore";
 import { ordersRef } from "../../utils/services/ReactQueryServices";
-import moment from "moment/moment";
 import { StyledDiv } from "../../components/common/StyledGuide";
 import OrderFormEdit from "../../components/forms/OrderFormEdit";
+import dayjs from "dayjs";
 
 const statusColor = {
   completed: "#52c41a",
@@ -122,7 +122,7 @@ const OrdersTable = () => {
       dataIndex: "date",
       key: "date",
       render: (_, render) => {
-        return <>{moment(render.date).format("LLL")}</>;
+        return <>{dayjs.unix(render.date).format("MMM D, YYYY h:mm A")}</>;
       },
     },
 
