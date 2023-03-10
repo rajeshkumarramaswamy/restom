@@ -135,10 +135,17 @@ const ExportForm = (props) => {
           (n, { deliveryCharge }) => n + deliveryCharge,
           0
         );
+        let paidonDelivery = finalArray.reduce((n, { value, paid }) => {
+          if (!paid) {
+            return n || 0 + value;
+          }
+        }, 0);
+
         setreports({
           alldocs: finalArray,
           total: totalSum,
           deliveryCharges: totalDeliveryCharges,
+          paidonDelivery: paidonDelivery,
           currentDate: dayjs().format("LLL"),
         });
         setexportState({
@@ -150,7 +157,7 @@ const ExportForm = (props) => {
       .catch((error) => {
         api.error({
           message: `Report generation failed !`,
-          description: `Something went wrong while pulling the report. Please contact the administrator.`,
+          description: `Something went wrong while fetching the report. Please try again later or contact the administrator.`,
           placement: "bottomRight",
         });
         resetPage();
@@ -190,8 +197,6 @@ const ExportForm = (props) => {
       currentDate: null,
     });
   };
-
-  console.log("queryRestaurants", reports);
 
   return (
     <>

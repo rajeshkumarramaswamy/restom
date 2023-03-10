@@ -11,6 +11,13 @@ const styles = StyleSheet.create({
     height: 24,
     fontStyle: "bold",
   },
+  orderNumber: {
+    width: "25%",
+    textAlign: "left",
+    borderRightColor: borderColor,
+    borderRightWidth: 1,
+    paddingLeft: 8,
+  },
   description: {
     width: "25%",
     textAlign: "left",
@@ -42,6 +49,7 @@ const styles = StyleSheet.create({
 const InvoiceTableRow = ({ items }) => {
   const rows = items.map((item) => (
     <View style={styles.row} key={item.id}>
+      <Text style={styles.orderNumber}>{item.orderNumber}</Text>
       <Text style={styles.description}>{item.name}</Text>
       <Text style={styles.qty}>{item.location}</Text>
       <Text style={styles.qty}>{item.driver}</Text>

@@ -29,6 +29,7 @@ const InvoiceItemsTable = ({ invoice }) => {
       <InvoiceTableFooter
         total={invoice.total}
         deliveryCharges={invoice.deliveryCharges}
+        paidonDelivery={invoice.paidonDelivery}
       />
     </View>
   );
