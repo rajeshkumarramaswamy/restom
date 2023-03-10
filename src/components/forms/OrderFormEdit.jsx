@@ -46,6 +46,9 @@ const OrderFormEdit = (props) => {
   const [locationsList, setlocationsList] = useState([]);
   const [api, contextHolder] = notification.useNotification();
   const [orderRef, setorderRef] = useState(null);
+  const orderValue = Form.useWatch("value", form);
+  const mileageEnd = Form.useWatch("mileageEnd", form);
+  const mileageStart = Form.useWatch("mileageStart", form);
 
   const orderMutate = useFirestoreDocumentMutation(orderRef, { merge: true });
   const queryRestaurants = useFirestoreQuery(["retaurants"], restaurantsRef, {
@@ -63,7 +66,12 @@ const OrderFormEdit = (props) => {
     if (orderMutate.isSuccess) {
       api.success({
         message: `Order updated`,
-        description: `Order ${orderMutate.variables.name} updated successfully`,
+        description: (
+          <div>
+            Order <b>{get(props, "editDetails.orderNumber", "")}</b> updated
+            successfully
+          </div>
+        ),
         placement: "bottomRight",
         style: {
           backgroundColor: "#f6ffed",
@@ -132,6 +140,8 @@ const OrderFormEdit = (props) => {
     });
   };
 
+  console.log("props", props, orderMutate);
+
   return (
     <>
       <Spin spinning={orderMutate.isLoading}>
@@ -148,7 +158,10 @@ const OrderFormEdit = (props) => {
                   },
                 ]}
               >
-                <Select placeholder="Please select a restaurant">
+                <Select
+                  placeholder="Please select a restaurant"
+                  loading={queryRestaurants.isLoading}
+                >
                   {restoList.map((rest) => {
                     return (
                       <Option
@@ -173,7 +186,11 @@ const OrderFormEdit = (props) => {
                   },
                 ]}
               >
-                <Select placeholder="Please select a location">
+                <Select
+                  placeholder="Please select a location"
+                  className="addScroll"
+                  loading={queryLocations.isLoading}
+                >
                   {locationsList.map((rest) => {
                     return (
                       <Option
@@ -189,7 +206,7 @@ const OrderFormEdit = (props) => {
             </Col>
           </Row>
           <Row gutter={16}>
-            <Col span={24}>
+            <Col span={12}>
               <Form.Item
                 name="driver"
                 label="Driver"
@@ -200,13 +217,13 @@ const OrderFormEdit = (props) => {
                   },
                 ]}
               >
-                <Select placeholder="Please select an Driver">
+                <Select
+                  placeholder="Please select an Driver"
+                  loading={queryDrivers.isLoading}
+                >
                   {driversList.map((driver) => {
                     return (
-                      <Option
-                        key={get(driver, "firstName", "")}
-                        value={get(driver, "firstName", "")}
-                      >
+                      <Option value={get(driver, "firstName", "")}>
                         {get(driver, "firstName", "")}
                       </Option>
                     );
@@ -214,11 +231,33 @@ const OrderFormEdit = (props) => {
                 </Select>
               </Form.Item>
             </Col>
+            <Col span={12}>
+              <Form.Item name="paid" label="Order paid">
+                <Select placeholder="Please select payment status">
+                  <Option value={true}>Yes</Option>
+                  <Option value={false}>No</Option>
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={24}>
+              <Form.Item label="Customer location" name="customerLocation">
+                <Input placeholder="Customer location" />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={24}>
+              <Form.Item label="Customer number" name="customerNumber">
+                <Input placeholder="Customer Numbers" />
+              </Form.Item>
+            </Col>
           </Row>
           <Row gutter={16}>
             <Col span={24}>
               <Form.Item
-                label="Mileage"
+                label="Bike Kilometers"
                 style={{
                   marginBottom: 0,
                 }}
@@ -235,7 +274,7 @@ const OrderFormEdit = (props) => {
                     width: "calc(50% - 8px)",
                   }}
                 >
-                  <Input placeholder="Mileage Start" />
+                  <Input type="number" placeholder="Bike kilometers start" />
                 </Form.Item>
                 <Form.Item
                   name="mileageEnd"
@@ -250,13 +289,13 @@ const OrderFormEdit = (props) => {
                     margin: "0 8px",
                   }}
                 >
-                  <Input placeholder="Mileage End" />
+                  <Input type="number" placeholder="Bike kilometers end" />
                 </Form.Item>
               </Form.Item>
             </Col>
           </Row>
           <Row gutter={16}>
-            <Col span={8}>
+            <Col span={12}>
               <Form.Item
                 name="status"
                 label="Status"
@@ -275,21 +314,23 @@ const OrderFormEdit = (props) => {
                 </Select>
               </Form.Item>
             </Col>
-            <Col span={8}>
+            <Col span={12}>
               <Form.Item
                 name="date"
                 label="Date"
                 rules={[
                   {
                     required: true,
-                    message: "Please select date",
+                    message: "Please choose the approver",
                   },
                 ]}
               >
                 <DatePicker showTime />
               </Form.Item>
             </Col>
-            <Col span={8}>
+          </Row>
+          <Row gutter={16}>
+            <Col span={12}>
               <Form.Item
                 name="value"
                 label="Value"
@@ -321,13 +362,16 @@ const OrderFormEdit = (props) => {
 
       <div
         style={{
-          position: "absolute",
+          marginTop: "20px",
           bottom: 0,
           fontWeight: "bolder",
           color: "gray",
         }}
       >
-        <h1>Total : {form.getFieldValue("value")}</h1>
+        <h1>Total : {orderValue}</h1>
+        <p>
+          Delivery Charges : {`Rs.${(mileageEnd - mileageStart) * 35 || 0}`}
+        </p>
       </div>
       {contextHolder}
     </>

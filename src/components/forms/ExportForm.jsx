@@ -14,6 +14,7 @@ import {
 import { get } from "lodash";
 import React, { useState } from "react";
 import {
+  driversRef,
   locationsRef,
   restaurantsRef,
 } from "../../utils/services/ReactQueryServices";
@@ -30,6 +31,7 @@ const initial = {
   location: "",
   dateFrom: 0,
   dateTo: 0,
+  driver: "",
   reportType: true,
   hitCall: false,
   loading: false,
@@ -41,6 +43,7 @@ const ExportForm = (props) => {
   const [exportState, setexportState] = useState(initial);
   const [restoList, setrestoList] = useState([]);
   const [locationList, setlocationList] = useState([]);
+  const [driverList, setdriverList] = useState([]);
   const [api, contextHolder] = notification.useNotification();
 
   const [reports, setreports] = useState({
@@ -81,6 +84,22 @@ const ExportForm = (props) => {
       },
     }
   );
+  const queryDrivers = useFirestoreQuery(
+    ["drivers"],
+    driversRef,
+    {
+      subscribe: true,
+    },
+    {
+      onSuccess: (response) => {
+        let finalDrivers = response.docs.map((docSnapshot) => {
+          const doc = docSnapshot.data();
+          return doc;
+        });
+        setdriverList(finalDrivers);
+      },
+    }
+  );
   const onSelectChange = (value, type) => {
     setreports({
       alldocs: [],
@@ -99,6 +118,8 @@ const ExportForm = (props) => {
       queryContraints.push(where("name", "==", exportState.restaurant));
     if (exportState.location !== "")
       queryContraints.push(where("location", "==", exportState.location));
+    if (exportState.driver !== "")
+      queryContraints.push(where("driver", "==", exportState.driver));
     if (exportState.dateFrom !== 0)
       queryContraints.push(where("date", ">", parseInt(exportState.dateFrom)));
     if (exportState.dateTo !== 0)
@@ -167,8 +188,6 @@ const ExportForm = (props) => {
     });
   };
 
-  console.log("render", exportState);
-
   return (
     <>
       <>
@@ -189,6 +208,7 @@ const ExportForm = (props) => {
               value={exportState.restaurant}
               allowClear
               onClear={resetPage}
+              loading={queryRestaurants.isLoading}
             >
               {restoList?.map((rest) => {
                 return (
@@ -217,6 +237,7 @@ const ExportForm = (props) => {
               onChange={(value) => onSelectChange(value, "location")}
               value={exportState.location}
               onClear={resetPage}
+              loading={queryLocations.isLoading}
             >
               {locationList?.map((rest) => {
                 return (
@@ -225,6 +246,30 @@ const ExportForm = (props) => {
                     value={get(rest, "name", "")}
                   >
                     {get(rest, "name", "")}
+                  </Option>
+                );
+              })}
+            </Select>
+          </Form.Item>
+          <Form.Item name="driver" label="Driver">
+            <Select
+              placeholder="Please select a driver"
+              onChange={(value) => onSelectChange(value, "driver")}
+              value={exportState.driver}
+              onClear={resetPage}
+              loading={queryDrivers.isLoading}
+            >
+              {driverList?.map((rest) => {
+                return (
+                  <Option
+                    key={get(rest, "firstName", "")}
+                    value={get(rest, "firstName", "")}
+                  >
+                    {`${get(rest, "firstName", "")} ${get(
+                      rest,
+                      "lastName",
+                      ""
+                    )}`}
                   </Option>
                 );
               })}

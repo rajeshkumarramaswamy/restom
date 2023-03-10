@@ -14,8 +14,9 @@ import {
   notification,
   Spin,
 } from "antd";
+import dayjs from "dayjs";
 import { get } from "lodash";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useId } from "react";
 import { epoch, modifySelectData } from "../../utils/common";
 import {
   driversRef,
@@ -39,6 +40,7 @@ let intial = {
 
 const OrderForm = (props) => {
   const [form] = Form.useForm();
+  const orderValue = Form.useWatch("value", form);
   const mileageEnd = Form.useWatch("mileageEnd", form);
   const mileageStart = Form.useWatch("mileageStart", form);
   const [restoList, setrestoList] = useState([]);
@@ -74,7 +76,7 @@ const OrderForm = (props) => {
   useEffect(() => {
     if (queryDrivers.isFetched) {
       const fetchDrivers = queryDrivers.data?.docs.map((docSnapshot) => {
-        const doc = docSnapshot.data();
+        const doc = { ...docSnapshot.data(), label: docSnapshot.data().name };
         return doc;
       });
       setdriversList(fetchDrivers);
@@ -84,7 +86,7 @@ const OrderForm = (props) => {
   useEffect(() => {
     if (queryLocations.isFetched) {
       const fetchLocations = queryLocations.data?.docs.map((docSnapshot) => {
-        const doc = docSnapshot.data();
+        const doc = { ...docSnapshot.data(), label: docSnapshot.data().name };
         return doc;
       });
       let finalLocations = modifySelectData(fetchLocations);
@@ -116,17 +118,18 @@ const OrderForm = (props) => {
   const onFinish = (values) => {
     orderMutate.mutate({
       ...values,
+      orderNumber: `XE${dayjs().unix()}`,
       date: epoch(values.date),
       mileageEnd: parseInt(values.mileageEnd),
       mileageStart: parseInt(values.mileageStart),
       value: parseInt(values.value),
       miles: parseInt(values.mileageEnd) - parseInt(values.mileageStart),
+      deliveryCharge: (mileageEnd - mileageStart) * 35,
     });
   };
 
   const onValuesChange = (changedValues, allValues) => {
     const fieldName = Object.keys(changedValues)[0];
-    console.log("valueschange", changedValues, allValues);
     if (fieldName === "mileageEnd") {
       const end = parseInt(
         changedValues["mileageEnd"] || allValues["mileageEnd"] || 0
@@ -162,7 +165,10 @@ const OrderForm = (props) => {
                   },
                 ]}
               >
-                <Select placeholder="Please select a restaurant">
+                <Select
+                  placeholder="Please select a restaurant"
+                  loading={queryRestaurants.isLoading}
+                >
                   {restoList.map((rest) => {
                     return (
                       <Option
@@ -187,7 +193,11 @@ const OrderForm = (props) => {
                   },
                 ]}
               >
-                <Select placeholder="Please select a location">
+                <Select
+                  placeholder="Please select a location"
+                  className="addScroll"
+                  loading={queryLocations.isLoading}
+                >
                   {locationsList.map((rest) => {
                     return (
                       <Option
@@ -203,7 +213,7 @@ const OrderForm = (props) => {
             </Col>
           </Row>
           <Row gutter={16}>
-            <Col span={24}>
+            <Col span={12}>
               <Form.Item
                 name="driver"
                 label="Driver"
@@ -214,7 +224,10 @@ const OrderForm = (props) => {
                   },
                 ]}
               >
-                <Select placeholder="Please select an Driver">
+                <Select
+                  placeholder="Please select an Driver"
+                  loading={queryDrivers.isLoading}
+                >
                   {driversList.map((driver) => {
                     return (
                       <Option value={get(driver, "firstName", "")}>
@@ -225,32 +238,33 @@ const OrderForm = (props) => {
                 </Select>
               </Form.Item>
             </Col>
-            {/* <Col span={12}>
-              <Form.Item
-                name="miles"
-                label="Kilometers to delivery"
-                rules={[
-                  {
-                    message: "Kilometers to delivery",
-                  },
-                ]}
-              >
-                <Input
-                  style={{
-                    width: "100%",
-                  }}
-                  disabled
-                  type="number"
-                  placeholder="Kilometers to delivery"
-                  value={orderState.miles}
-                />
+            <Col span={12}>
+              <Form.Item name="paid" label="Order paid">
+                <Select placeholder="Please select payment status">
+                  <Option value={true}>Yes</Option>
+                  <Option value={false}>No</Option>
+                </Select>
               </Form.Item>
-            </Col> */}
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={24}>
+              <Form.Item label="Customer location" name="customerLocation">
+                <Input placeholder="Customer location" />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={24}>
+              <Form.Item label="Customer number" name="customerNumber">
+                <Input placeholder="Customer Numbers" />
+              </Form.Item>
+            </Col>
           </Row>
           <Row gutter={16}>
             <Col span={24}>
               <Form.Item
-                label="Mileage"
+                label="Bike Kilometers"
                 style={{
                   marginBottom: 0,
                 }}
@@ -267,7 +281,11 @@ const OrderForm = (props) => {
                     width: "calc(50% - 8px)",
                   }}
                 >
-                  <Input type="number" placeholder="Mileage Start" />
+                  <Input
+                    type="number"
+                    max={mileageEnd}
+                    placeholder="Bike kilometers start"
+                  />
                 </Form.Item>
                 <Form.Item
                   name="mileageEnd"
@@ -282,13 +300,13 @@ const OrderForm = (props) => {
                     margin: "0 8px",
                   }}
                 >
-                  <Input type="number" placeholder="Mileage End" />
+                  <Input type="number" placeholder="Bike kilometers end" />
                 </Form.Item>
               </Form.Item>
             </Col>
           </Row>
           <Row gutter={16}>
-            <Col span={8}>
+            <Col span={12}>
               <Form.Item
                 name="status"
                 label="Status"
@@ -307,7 +325,7 @@ const OrderForm = (props) => {
                 </Select>
               </Form.Item>
             </Col>
-            <Col span={8}>
+            <Col span={12}>
               <Form.Item
                 name="date"
                 label="Date"
@@ -321,7 +339,9 @@ const OrderForm = (props) => {
                 <DatePicker showTime />
               </Form.Item>
             </Col>
-            <Col span={8}>
+          </Row>
+          <Row gutter={16}>
+            <Col span={12}>
               <Form.Item
                 name="value"
                 label="Value"
@@ -353,14 +373,17 @@ const OrderForm = (props) => {
 
       <div
         style={{
-          position: "absolute",
+          marginTop: "20px",
           bottom: 0,
           fontWeight: "bolder",
           color: "gray",
         }}
       >
-        <h1>Total : {form.getFieldValue("value")}</h1>
+        <h1>Total : {orderValue}</h1>
         <p>Kilometers to delivery : {mileageEnd - mileageStart || 0}</p>
+        <p>
+          Delivery Charges : {`Rs.${(mileageEnd - mileageStart) * 35 || 0}`}
+        </p>
       </div>
       {contextHolder}
     </>

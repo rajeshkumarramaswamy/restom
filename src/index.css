@@ -10,3 +10,7 @@
   height: 70px;
   float: left;
 }
+.ant-select-dropdown .addScroll {
+  max-height: 100px !important;
+  overflow: auto;
+}

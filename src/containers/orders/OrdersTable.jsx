@@ -1,4 +1,4 @@
-import { Drawer, Space, Table, Tag } from "antd";
+import { Badge, Drawer, Space, Table, Tag } from "antd";
 import React, { useState } from "react";
 import { EditOutlined } from "@ant-design/icons";
 import { get } from "lodash";
@@ -9,10 +9,10 @@ import { StyledDiv } from "../../components/common/StyledGuide";
 import OrderFormEdit from "../../components/forms/OrderFormEdit";
 
 const statusColor = {
-  completed: "green",
+  completed: "#52c41a",
   failed: "red",
   inprogress: "orange",
-  hold: "red",
+  hold: "blue",
 };
 
 const initial = {
@@ -46,11 +46,41 @@ const OrdersTable = () => {
 
   const columns = [
     {
+      title: "OrderNo.",
+      dataIndex: "orderNumber",
+      key: "orderNumber",
+      align: "left",
+      width: 125,
+      fixed: "left",
+      render: (text) => <b>{text}</b>,
+    },
+    {
       title: "Restaurant",
       dataIndex: "name",
       key: "name",
-      align: "center",
-      render: (text) => <a>{text}</a>,
+      align: "left",
+      fixed: "left",
+    },
+    {
+      title: "Paid",
+      dataIndex: "paid",
+      key: "paid",
+      width: 50,
+      render: (text) => (
+        <div>
+          <Badge
+            count={text ? "Yes" : "No"}
+            style={{
+              backgroundColor: text ? "#52c41a" : "red",
+            }}
+          />
+        </div>
+      ),
+    },
+    {
+      title: "Location",
+      dataIndex: "location",
+      key: "location",
     },
     {
       title: "Driver",
@@ -58,31 +88,35 @@ const OrdersTable = () => {
       key: "driver",
     },
     {
-      title: "Miles",
+      title: "Kms",
       dataIndex: "miles",
       key: "miles",
       sorter: (a, b) => a.miles - b.miles,
       render: (text) => <div>{`${text}Kms`}</div>,
     },
     {
-      title: "MileageStart",
+      title: "Cust. Location",
+      key: "customerLocation",
+      dataIndex: "customerLocation",
+    },
+    {
+      title: "Cust. Number",
+      key: "customerNumber",
+      dataIndex: "customerNumber",
+    },
+    {
+      title: "Kms Start",
       dataIndex: "mileageStart",
       key: "mileageStart",
       render: (text) => <div>{`${text}Kms`}</div>,
     },
     {
-      title: "MileageEnd",
+      title: "Kms End",
       dataIndex: "mileageEnd",
       key: "mileageEnd",
       render: (text) => <div>{`${text}Kms`}</div>,
     },
-    {
-      title: "Value",
-      dataIndex: "value",
-      key: "value",
-      sorter: (a, b) => a.value - b.value,
-      render: (text) => <div>{`Rs.${text}`}</div>,
-    },
+
     {
       title: "Date",
       dataIndex: "date",
@@ -93,26 +127,38 @@ const OrdersTable = () => {
     },
 
     {
-      title: "Location",
-      dataIndex: "location",
-      key: "location",
-    },
-    {
       title: "Status",
       key: "status",
+      fixed: "right",
       dataIndex: "status",
       render: (_, render) => {
         return (
           <>
-            <Tag
-              color={statusColor[get(render, "status", "")]}
+            <Badge
+              style={{
+                backgroundColor: statusColor[get(render, "status", "")],
+              }}
               key={get(render, "status", "")}
-            >
-              {get(render, "status", "").toUpperCase()}
-            </Tag>
+              count={get(render, "status", "").toUpperCase()}
+            />
           </>
         );
       },
+    },
+    {
+      title: "Value",
+      dataIndex: "value",
+      key: "value",
+      sorter: (a, b) => a.value - b.value,
+      render: (text) => <div>{`Rs.${text}`}</div>,
+    },
+    {
+      title: "Delivery",
+      dataIndex: "deliveryCharge",
+      key: "deliveryCharge",
+      fixed: "right",
+      sorter: (a, b) => a.value - b.value,
+      render: (text) => <div>{`Rs.${text}`}</div>,
     },
     {
       title: "Action",
