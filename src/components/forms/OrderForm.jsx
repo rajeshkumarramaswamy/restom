@@ -118,13 +118,6 @@ const OrderForm = (props) => {
 
   const onValuesChange = (changedValues, allValues) => {
     const fieldName = Object.keys(changedValues)[0];
-    if (fieldName === "date") {
-      console.log(
-        "values",
-        changedValues.date,
-        dayjs(changedValues.date).unix()
-      );
-    }
     if (fieldName === "mileageEnd") {
       const end = parseInt(
         changedValues["mileageEnd"] || allValues["mileageEnd"] || 0

@@ -21,7 +21,6 @@ const styles = StyleSheet.create({
 });
 
 const InvoiceNo = () => {
-  // console.log("invoiceNo", props);
   let currentData = new Date().toLocaleString();
   return (
     <Fragment>

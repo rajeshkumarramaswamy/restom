@@ -140,8 +140,6 @@ const OrderFormEdit = (props) => {
     });
   };
 
-  console.log("props", props, orderMutate);
-
   return (
     <>
       <Spin spinning={orderMutate.isLoading}>

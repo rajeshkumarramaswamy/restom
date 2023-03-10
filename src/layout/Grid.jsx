@@ -8,7 +8,6 @@ const Grid = () => {
   // const getToken = useQuery("token", GetToken, {
   //   refetchOnWindowFocus: false,
   // });
-  // console.log("getToken", getToken);
   const {
     token: { colorBgContainer },
   } = theme.useToken();
@@ -23,15 +22,6 @@ const Grid = () => {
         }}
       >
         <img className="xeat_logo" src={Xeat} />
-        {/* <div
-          style={{
-            float: "left",
-            width: 120,
-            height: 30,
-            margin: "16px 24px 16px 0",
-            background: "rgba(255, 255, 255, 0.2)",
-          }}
-        /> */}
       </Header>
       <Content
         className="site-layout"
