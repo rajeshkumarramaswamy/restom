@@ -49,6 +49,7 @@ const OrderFormEdit = (props) => {
   const orderValue = Form.useWatch("value", form);
   const mileageEnd = Form.useWatch("mileageEnd", form);
   const mileageStart = Form.useWatch("mileageStart", form);
+  const paidToRestaurant = Form.useWatch("paid", form);
 
   const orderMutate = useFirestoreDocumentMutation(orderRef, { merge: true });
   const queryRestaurants = useFirestoreQuery(["retaurants"], restaurantsRef, {
@@ -139,11 +140,29 @@ const OrderFormEdit = (props) => {
       date: epoch(values.date),
     });
   };
+  const onValuesChange = (changedValues, allValues) => {
+    const fieldName = Object.keys(changedValues)[0];
+
+    if (fieldName === "paid" && changedValues["paid"]) {
+      form.setFieldsValue({
+        value: 0,
+      });
+    } else if (fieldName === "paid" && !changedValues["paid"]) {
+      form.setFieldsValue({
+        value: props.editDetails.value,
+      });
+    }
+  };
 
   return (
     <>
       <Spin spinning={orderMutate.isLoading}>
-        <Form layout="vertical" form={form} onFinish={handleSubmit}>
+        <Form
+          layout="vertical"
+          form={form}
+          onFinish={handleSubmit}
+          onValuesChange={onValuesChange}
+        >
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
@@ -334,12 +353,13 @@ const OrderFormEdit = (props) => {
                 label="Value"
                 rules={[
                   {
-                    required: true,
+                    required: !paidToRestaurant,
                     message: "Enter Value",
                   },
                 ]}
               >
                 <Input
+                  disabled={paidToRestaurant}
                   style={{
                     width: "100%",
                   }}

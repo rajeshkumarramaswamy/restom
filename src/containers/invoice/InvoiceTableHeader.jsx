@@ -14,6 +14,12 @@ const styles = StyleSheet.create({
     fontStyle: "bold",
     flexGrow: 1,
   },
+  orderNumber: {
+    width: "25%",
+    borderRightColor: borderColor,
+    borderRightWidth: 1,
+    textAlign: "left",
+  },
   description: {
     width: "25%",
     borderRightColor: borderColor,
@@ -37,9 +43,11 @@ const styles = StyleSheet.create({
 
 const InvoiceTableHeader = () => (
   <View style={styles.container}>
+    <Text style={styles.description}>Order Number</Text>
     <Text style={styles.description}>Restaurant</Text>
     <Text style={styles.qty}>Location</Text>
     <Text style={styles.rate}>Driver</Text>
+    <Text style={styles.rate}>Kms</Text>
     <Text style={styles.amount}>Amount</Text>
   </View>
 );

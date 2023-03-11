@@ -30,6 +30,7 @@ const InvoiceItemsTable = ({ invoice }) => {
         total={invoice.total}
         deliveryCharges={invoice.deliveryCharges}
         paidonDelivery={invoice.paidonDelivery}
+        totalKms={invoice.totalKms}
       />
     </View>
   );

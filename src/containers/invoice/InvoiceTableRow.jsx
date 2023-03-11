@@ -53,6 +53,7 @@ const InvoiceTableRow = ({ items }) => {
       <Text style={styles.description}>{item.name}</Text>
       <Text style={styles.qty}>{item.location}</Text>
       <Text style={styles.qty}>{item.driver}</Text>
+      <Text style={styles.qty}>{item.miles}</Text>
       <Text style={styles.rate}>{item.value}</Text>
     </View>
   ));

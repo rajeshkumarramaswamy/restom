@@ -115,22 +115,27 @@ const ExportForm = (props) => {
       queryContraints.push(where("date", ">", parseInt(exportState.dateFrom)));
     if (exportState.dateTo !== 0)
       queryContraints.push(where("date", "<", parseInt(exportState.dateTo)));
-    queryContraints.push(where("paid", "==", false));
     const orderQuery = query(collection(db, "orders"), ...queryContraints);
-    console.log("orderQuery", orderQuery);
     const finalResult = await getDocs(orderQuery)
       .then((response) => {
         let finalArray = [];
         response.forEach((doc) => {
           finalArray.push({ id: doc.id, ...doc.data() });
         });
-        let totalSum = finalArray.reduce((n, { value }) => n + value, 0);
+        let totalSum = finalArray.reduce(
+          (n, { value }) => parseInt(n) + parseInt(value),
+          0
+        );
         let totalDeliveryCharges = finalArray.reduce(
-          (n, { deliveryCharge }) => n + deliveryCharge,
+          (n, { deliveryCharge }) => parseInt(n) + parseInt(deliveryCharge),
           0
         );
         let paidonDelivery = finalArray.reduce(
-          (n, { value }) => n || 0 + value,
+          (n, { value, paid }) => (!paid ? parseInt(n) + parseInt(value) : 0),
+          0
+        );
+        let totalKms = finalArray.reduce(
+          (n, { miles, paid }) => parseInt(n) + parseInt(miles),
           0
         );
 
@@ -139,6 +144,7 @@ const ExportForm = (props) => {
           total: totalSum,
           deliveryCharges: totalDeliveryCharges,
           paidonDelivery: paidonDelivery,
+          totalKms: totalKms,
           currentDate: dayjs().format("LLL"),
         });
         setexportState({

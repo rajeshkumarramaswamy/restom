@@ -45,6 +45,7 @@ const InvoiceTableBlankSpace = ({ rowsCount }) => {
       <Text style={styles.description}>-</Text>
       <Text style={styles.qty}>-</Text>
       <Text style={styles.rate}>-</Text>
+      <Text style={styles.rate}>-</Text>
       <Text style={styles.amount}>-</Text>
     </View>
   ));

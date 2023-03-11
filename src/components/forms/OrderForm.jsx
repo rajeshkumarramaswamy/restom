@@ -31,6 +31,7 @@ const OrderForm = (props) => {
   const orderValue = Form.useWatch("value", form);
   const mileageEnd = Form.useWatch("mileageEnd", form);
   const mileageStart = Form.useWatch("mileageStart", form);
+  const paidToRestaurant = Form.useWatch("paid", form);
   const [restoList, setrestoList] = useState([]);
   const [driversList, setdriversList] = useState([]);
   const [locationsList, setlocationsList] = useState([]);
@@ -128,6 +129,11 @@ const OrderForm = (props) => {
       const final = end - start;
       form.setFieldsValue({
         miles: final,
+      });
+    }
+    if (changedValues["paid"]) {
+      form.setFieldsValue({
+        value: 0,
       });
     }
   };
@@ -362,12 +368,13 @@ const OrderForm = (props) => {
                 label="Value"
                 rules={[
                   {
-                    required: true,
+                    required: !paidToRestaurant,
                     message: "Enter Value",
                   },
                 ]}
               >
                 <Input
+                  disabled={paidToRestaurant}
                   style={{
                     width: "100%",
                   }}

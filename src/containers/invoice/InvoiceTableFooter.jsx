@@ -26,11 +26,16 @@ const styles = StyleSheet.create({
   },
 });
 
-const InvoiceTableFooter = ({ total, deliveryCharges, paidonDelivery }) => {
+const InvoiceTableFooter = ({
+  total,
+  deliveryCharges,
+  paidonDelivery,
+  totalKms,
+}) => {
   return (
     <>
       <View style={styles.row}>
-        <Text style={styles.description}>TOTAL</Text>
+        <Text style={styles.description}>Order Value</Text>
         <Text style={styles.total}>{total}</Text>
       </View>
       <View style={styles.row}>
@@ -38,7 +43,11 @@ const InvoiceTableFooter = ({ total, deliveryCharges, paidonDelivery }) => {
         <Text style={styles.total}>{deliveryCharges}</Text>
       </View>
       <View style={styles.row}>
-        <Text style={styles.description}>Paid at delivery</Text>
+        <Text style={styles.description}>Total Kms</Text>
+        <Text style={styles.total}>{totalKms}</Text>
+      </View>
+      <View style={styles.row}>
+        <Text style={styles.description}>Paid to driver</Text>
         <Text style={styles.total}>{paidonDelivery}</Text>
       </View>
     </>
