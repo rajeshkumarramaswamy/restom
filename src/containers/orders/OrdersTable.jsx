@@ -57,6 +57,7 @@ const OrdersTable = () => {
       title: "Restaurant",
       dataIndex: "name",
       key: "name",
+      sorter: (a, b) => a.name - b.name,
       align: "left",
     },
     {
@@ -79,6 +80,7 @@ const OrdersTable = () => {
       title: "Location",
       dataIndex: "location",
       key: "location",
+      sorter: (a, b) => a.location - b.location,
     },
     {
       title: "Driver",
@@ -130,6 +132,7 @@ const OrdersTable = () => {
       title: "Status",
       key: "status",
       dataIndex: "status",
+      sorter: (a, b) => a.status - b.status,
       render: (_, render) => {
         return (
           <>

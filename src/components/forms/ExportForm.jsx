@@ -12,7 +12,7 @@ import {
   Spin,
 } from "antd";
 import { get } from "lodash";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   driversRef,
   locationsRef,
@@ -51,54 +51,46 @@ const ExportForm = (props) => {
     currentDate: null,
   });
 
-  const queryRestaurants = useFirestoreQuery(
-    ["retaurants"],
-    restaurantsRef,
-    {
-      subscribe: true,
-    },
-    {
-      onSuccess: (response) => {
-        const fetchRestaurants = response.docs.map((docSnapshot) => {
-          const doc = docSnapshot.data();
-          return doc;
-        });
-        setrestoList(fetchRestaurants);
-      },
+  const queryRestaurants = useFirestoreQuery(["retaurants"], restaurantsRef, {
+    subscribe: true,
+  });
+  const queryLocations = useFirestoreQuery(["locations"], locationsRef, {
+    subscribe: true,
+  });
+  const queryDrivers = useFirestoreQuery(["drivers"], driversRef, {
+    subscribe: true,
+  });
+
+  useEffect(() => {
+    if (queryRestaurants.isSuccess) {
+      const fetchRestaurants = queryRestaurants.data.docs.map((docSnapshot) => {
+        const doc = docSnapshot.data();
+        return doc;
+      });
+      setrestoList(fetchRestaurants);
     }
-  );
-  const queryLocations = useFirestoreQuery(
-    ["locations"],
-    locationsRef,
-    {
-      subscribe: true,
-    },
-    {
-      onSuccess: (response) => {
-        let finalLocations = response.docs.map((docSnapshot) => {
-          const doc = docSnapshot.data();
-          return doc;
-        });
-        setlocationList(finalLocations);
-      },
+  }, [queryRestaurants.isSuccess]);
+
+  useEffect(() => {
+    if (queryLocations.isSuccess) {
+      const fetchLocations = queryLocations.data.docs.map((docSnapshot) => {
+        const doc = docSnapshot.data();
+        return doc;
+      });
+      setlocationList(fetchLocations);
     }
-  );
-  const queryDrivers = useFirestoreQuery(
-    ["drivers"],
-    driversRef,
-    {
-      subscribe: true,
-    },
-    {
-      onSuccess: (response) => {
-        let finalDrivers = response.docs.map((docSnapshot) => {
-          const doc = docSnapshot.data();
-          return doc;
-        });
-        setdriverList(finalDrivers);
-      },
+  }, [queryLocations.isSuccess]);
+
+  useEffect(() => {
+    if (queryDrivers.isSuccess) {
+      const finalDrivers = queryDrivers.data.docs.map((docSnapshot) => {
+        const doc = docSnapshot.data();
+        return doc;
+      });
+      setdriverList(finalDrivers);
     }
-  );
+  }, [queryDrivers.isSuccess]);
+
   const onSelectChange = (value, type) => {
     setreports({
       alldocs: [],
@@ -123,7 +115,9 @@ const ExportForm = (props) => {
       queryContraints.push(where("date", ">", parseInt(exportState.dateFrom)));
     if (exportState.dateTo !== 0)
       queryContraints.push(where("date", "<", parseInt(exportState.dateTo)));
+    queryContraints.push(where("paid", "==", false));
     const orderQuery = query(collection(db, "orders"), ...queryContraints);
+    console.log("orderQuery", orderQuery);
     const finalResult = await getDocs(orderQuery)
       .then((response) => {
         let finalArray = [];
@@ -135,11 +129,10 @@ const ExportForm = (props) => {
           (n, { deliveryCharge }) => n + deliveryCharge,
           0
         );
-        let paidonDelivery = finalArray.reduce((n, { value, paid }) => {
-          if (!paid) {
-            return n || 0 + value;
-          }
-        }, 0);
+        let paidonDelivery = finalArray.reduce(
+          (n, { value }) => n || 0 + value,
+          0
+        );
 
         setreports({
           alldocs: finalArray,
@@ -155,6 +148,7 @@ const ExportForm = (props) => {
         });
       })
       .catch((error) => {
+        console.log("error", error);
         api.error({
           message: `Report generation failed !`,
           description: `Something went wrong while fetching the report. Please try again later or contact the administrator.`,
