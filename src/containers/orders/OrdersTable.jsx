@@ -51,7 +51,6 @@ const OrdersTable = () => {
       key: "orderNumber",
       align: "left",
       width: 125,
-      fixed: "left",
       render: (text) => <b>{text}</b>,
     },
     {
@@ -59,7 +58,6 @@ const OrdersTable = () => {
       dataIndex: "name",
       key: "name",
       align: "left",
-      fixed: "left",
     },
     {
       title: "Paid",
@@ -131,7 +129,6 @@ const OrdersTable = () => {
     {
       title: "Status",
       key: "status",
-      fixed: "right",
       dataIndex: "status",
       render: (_, render) => {
         return (
@@ -158,7 +155,6 @@ const OrdersTable = () => {
       title: "Delivery",
       dataIndex: "deliveryCharge",
       key: "deliveryCharge",
-      fixed: "right",
       sorter: (a, b) => a.value - b.value,
       render: (text) => <div>{`Rs.${text}`}</div>,
     },
