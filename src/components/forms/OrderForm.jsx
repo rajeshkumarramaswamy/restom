@@ -32,6 +32,7 @@ const OrderForm = (props) => {
   const mileageEnd = Form.useWatch("mileageEnd", form);
   const mileageStart = Form.useWatch("mileageStart", form);
   const paidToRestaurant = Form.useWatch("paid", form);
+  const costPerKm = Form.useWatch("costPerKm", form);
   const [restoList, setrestoList] = useState([]);
   const [driversList, setdriversList] = useState([]);
   const [locationsList, setlocationsList] = useState([]);
@@ -87,7 +88,11 @@ const OrderForm = (props) => {
     if (orderMutate.isSuccess) {
       api.success({
         message: `Order Created`,
-        description: `Order ${orderMutate.variables.name} created successfully`,
+        description: (
+          <div>
+            Order for <b>{orderMutate.variables.name}</b> created successfully
+          </div>
+        ),
         placement: "bottomRight",
         style: {
           backgroundColor: "#f6ffed",
@@ -113,7 +118,8 @@ const OrderForm = (props) => {
       mileageStart: parseInt(values.mileageStart),
       value: parseInt(values.value),
       miles: parseInt(values.mileageEnd) - parseInt(values.mileageStart),
-      deliveryCharge: (mileageEnd - mileageStart) * 35,
+      deliveryCharge: (mileageEnd - mileageStart) * costPerKm,
+      costPerKm: costPerKm,
     });
   };
 
@@ -283,7 +289,7 @@ const OrderForm = (props) => {
             </Col>
           </Row>
           <Row gutter={16}>
-            <Col span={24}>
+            <Col span={12}>
               <Form.Item
                 label="Bike Kilometers"
                 style={{
@@ -322,6 +328,29 @@ const OrderForm = (props) => {
                   }}
                 >
                   <Input type="number" placeholder="Bike kilometers end" />
+                </Form.Item>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label="Cost per Km"
+                style={{
+                  marginBottom: 0,
+                }}
+              >
+                <Form.Item
+                  name="costPerKm"
+                  rules={[
+                    {
+                      required: true,
+                    },
+                  ]}
+                >
+                  <Input
+                    type="number"
+                    max={mileageEnd}
+                    placeholder="Cost per Km"
+                  />
                 </Form.Item>
               </Form.Item>
             </Col>
@@ -404,7 +433,8 @@ const OrderForm = (props) => {
         <h1>Total : {orderValue}</h1>
         <p>Kilometers to delivery : {mileageEnd - mileageStart || 0}</p>
         <p>
-          Delivery Charges : {`Rs.${(mileageEnd - mileageStart) * 35 || 0}`}
+          Delivery Charges :{" "}
+          {`Rs.${(mileageEnd - mileageStart) * costPerKm || 0}`}
         </p>
       </div>
       {contextHolder}

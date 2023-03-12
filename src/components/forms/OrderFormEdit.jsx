@@ -50,6 +50,7 @@ const OrderFormEdit = (props) => {
   const mileageEnd = Form.useWatch("mileageEnd", form);
   const mileageStart = Form.useWatch("mileageStart", form);
   const paidToRestaurant = Form.useWatch("paid", form);
+  const costPerKm = Form.useWatch("costPerKm", form);
 
   const orderMutate = useFirestoreDocumentMutation(orderRef, { merge: true });
   const queryRestaurants = useFirestoreQuery(["retaurants"], restaurantsRef, {
@@ -137,6 +138,9 @@ const OrderFormEdit = (props) => {
     orderMutate.mutate({
       ...values,
       id: props.editDetails.id,
+      deliveryCharge:
+        (values.mileageEnd - values.mileageStart) * values.costPerKm,
+      costPerKm: costPerKm,
       date: epoch(values.date),
     });
   };
@@ -272,7 +276,7 @@ const OrderFormEdit = (props) => {
             </Col>
           </Row>
           <Row gutter={16}>
-            <Col span={24}>
+            <Col span={12}>
               <Form.Item
                 label="Bike Kilometers"
                 style={{
@@ -307,6 +311,29 @@ const OrderFormEdit = (props) => {
                   }}
                 >
                   <Input type="number" placeholder="Bike kilometers end" />
+                </Form.Item>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label="Cost per Km"
+                style={{
+                  marginBottom: 0,
+                }}
+              >
+                <Form.Item
+                  name="costPerKm"
+                  rules={[
+                    {
+                      required: true,
+                    },
+                  ]}
+                >
+                  <Input
+                    type="number"
+                    max={mileageEnd}
+                    placeholder="Cost per Km"
+                  />
                 </Form.Item>
               </Form.Item>
             </Col>
@@ -388,7 +415,8 @@ const OrderFormEdit = (props) => {
       >
         <h1>Total : {orderValue}</h1>
         <p>
-          Delivery Charges : {`Rs.${(mileageEnd - mileageStart) * 35 || 0}`}
+          Delivery Charges :{" "}
+          {`Rs.${(mileageEnd - mileageStart) * costPerKm || 0}`}
         </p>
       </div>
       {contextHolder}

@@ -4,6 +4,7 @@
 
 .ant-layout-header {
   background: #ff0000 !important;
+  z-index: 1111 !important;
 }
 
 .xeat_logo {
@@ -13,4 +14,8 @@
 .ant-select-dropdown .addScroll {
   max-height: 100px !important;
   overflow: auto;
+}
+
+.ant-drawer-content-wrapper {
+  z-index: 2222 !important;
 }
