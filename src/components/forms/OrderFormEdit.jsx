@@ -132,7 +132,7 @@ const OrderFormEdit = (props) => {
     if (get(props, "editDetails.id", false)) {
       setorderRef(doc(collection(db, "orders"), props.editDetails.id));
     }
-  }, []);
+  }, [props.editDetails.name]);
 
   const handleSubmit = (values) => {
     orderMutate.mutate({
@@ -156,6 +156,11 @@ const OrderFormEdit = (props) => {
         value: props.editDetails.value,
       });
     }
+  };
+
+  const handleClose = () => {
+    form.resetFields();
+    props.onClose();
   };
 
   return (
@@ -397,7 +402,7 @@ const OrderFormEdit = (props) => {
             </Col>
           </Row>
           <Space>
-            <Button onClick={props.onClose}>Cancel</Button>
+            <Button onClick={handleClose}>Cancel / Close</Button>
             <Button type="primary" htmlType="submit">
               Submit
             </Button>

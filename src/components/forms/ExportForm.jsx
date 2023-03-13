@@ -131,7 +131,7 @@ const ExportForm = (props) => {
           0
         );
         let paidonDelivery = finalArray.reduce(
-          (n, { value, paid }) => (!paid ? parseInt(n) + parseInt(value) : 0),
+          (n, { value }) => parseInt(n) + parseInt(value),
           0
         );
         let totalKms = finalArray.reduce(

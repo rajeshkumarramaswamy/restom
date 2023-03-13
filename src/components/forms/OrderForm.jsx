@@ -118,8 +118,9 @@ const OrderForm = (props) => {
       mileageStart: parseInt(values.mileageStart),
       value: parseInt(values.value),
       miles: parseInt(values.mileageEnd) - parseInt(values.mileageStart),
-      deliveryCharge: (mileageEnd - mileageStart) * costPerKm,
-      costPerKm: costPerKm,
+      deliveryCharge:
+        (parseInt(mileageEnd) - parseInt(mileageStart)) * parseInt(costPerKm),
+      costPerKm: parseInt(costPerKm),
     });
   };
 
@@ -346,11 +347,7 @@ const OrderForm = (props) => {
                     },
                   ]}
                 >
-                  <Input
-                    type="number"
-                    max={mileageEnd}
-                    placeholder="Cost per Km"
-                  />
+                  <Input type="number" placeholder="Cost per Km" />
                 </Form.Item>
               </Form.Item>
             </Col>
@@ -414,7 +411,7 @@ const OrderForm = (props) => {
             </Col>
           </Row>
           <Space>
-            <Button onClick={props.onClose}>Cancel</Button>
+            <Button onClick={props.onClose}>Cancel / Close</Button>
             <Button type="primary" htmlType="submit">
               Submit
             </Button>
