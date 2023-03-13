@@ -17,5 +17,5 @@
 }
 
 .ant-drawer-content-wrapper {
-  z-index: 2222 !important;
+  z-index: 99999 !important;
 }

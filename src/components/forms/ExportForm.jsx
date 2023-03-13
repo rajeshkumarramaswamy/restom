@@ -31,7 +31,7 @@ const initial = {
   dateFrom: 0,
   dateTo: 0,
   driver: "",
-  reportType: true,
+  reportType: "day",
   hitCall: false,
   loading: false,
 };
@@ -294,19 +294,19 @@ const ExportForm = (props) => {
             </Form.Item>
             <Row>
               <Form.Item label="Report Type">
-                <Radio.Group>
+                <Radio.Group value={exportState.reportType}>
                   <Radio
-                    defaultChecked={exportState.reportType}
+                    value={"day"}
                     onChange={() =>
-                      setexportState({ ...exportState, reportType: true })
+                      setexportState({ ...exportState, reportType: "day" })
                     }
                   >
                     Day report{" "}
                   </Radio>
                   <Radio
-                    value={!exportState.reportType}
+                    value={"date"}
                     onChange={() =>
-                      setexportState({ ...exportState, reportType: false })
+                      setexportState({ ...exportState, reportType: "date" })
                     }
                   >
                     Date range report{" "}
@@ -316,7 +316,7 @@ const ExportForm = (props) => {
             </Row>
 
             <Row>
-              {exportState.reportType ? (
+              {exportState.reportType === "day" ? (
                 <Col span={12}>
                   <Form.Item
                     name="dateReport"

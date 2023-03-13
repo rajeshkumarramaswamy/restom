@@ -293,6 +293,7 @@ const OrderFormEdit = (props) => {
                   rules={[
                     {
                       required: true,
+                      message: "Please enter Mileage start",
                     },
                   ]}
                   style={{
@@ -307,6 +308,7 @@ const OrderFormEdit = (props) => {
                   rules={[
                     {
                       required: true,
+                      message: "Please enter Mileage end",
                     },
                   ]}
                   style={{
@@ -331,6 +333,7 @@ const OrderFormEdit = (props) => {
                   rules={[
                     {
                       required: true,
+                      message: "Please enter cost per Km",
                     },
                   ]}
                 >
