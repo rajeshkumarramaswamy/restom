@@ -13,6 +13,11 @@ const styles = StyleSheet.create({
     color: "white",
   },
   orderNumber: {
+    width: "30%",
+    borderRightColor: borderColor,
+    borderRightWidth: 1,
+  },
+  date: {
     width: "25%",
     borderRightColor: borderColor,
     borderRightWidth: 1,
@@ -42,6 +47,7 @@ const InvoiceTableBlankSpace = ({ rowsCount }) => {
   const rows = blankRows.map((x, i) => (
     <View style={styles.row} key={`BR${i}`}>
       <Text style={styles.orderNumber}>-</Text>
+      <Text style={styles.date}>-</Text>
       <Text style={styles.description}>-</Text>
       <Text style={styles.qty}>-</Text>
       <Text style={styles.rate}>-</Text>

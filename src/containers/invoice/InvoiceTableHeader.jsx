@@ -15,16 +15,23 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   orderNumber: {
-    width: "25%",
+    width: "30%",
     borderRightColor: borderColor,
     borderRightWidth: 1,
     textAlign: "left",
   },
+  date: {
+    width: "25%",
+    borderRightColor: borderColor,
+    borderRightWidth: 1,
+    textAlign: "center",
+  },
+
   description: {
     width: "25%",
     borderRightColor: borderColor,
     borderRightWidth: 1,
-    textAlign: "left",
+    textAlign: "center",
   },
   qty: {
     width: "25%",
@@ -44,6 +51,7 @@ const styles = StyleSheet.create({
 const InvoiceTableHeader = () => (
   <View style={styles.container}>
     <Text style={styles.description}>Order Number</Text>
+    <Text style={styles.date}>Date</Text>
     <Text style={styles.description}>Restaurant</Text>
     <Text style={styles.qty}>Location</Text>
     <Text style={styles.rate}>Driver</Text>
