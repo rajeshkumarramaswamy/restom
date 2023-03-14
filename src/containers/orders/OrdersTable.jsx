@@ -7,6 +7,7 @@ import { ordersRef } from "../../utils/services/ReactQueryServices";
 import { StyledDiv } from "../../components/common/StyledGuide";
 import OrderFormEdit from "../../components/forms/OrderFormEdit";
 import dayjs from "dayjs";
+import moment from "moment/moment";
 const { Text } = Typography;
 const statusColor = {
   completed: "#52c41a",
@@ -135,7 +136,9 @@ const OrdersTable = () => {
       sorter: (a, b) => a.value - b.value,
       defaultSortOrder: "descend",
       render: (_, render) => {
-        return <>{dayjs.unix(render.date).format("MMM D, YYYY h:mm A")}</>;
+        return (
+          <>{moment.unix(render.date / 1000).format("MMM Do, YYYY h:mm A")}</>
+        );
       },
     },
 
