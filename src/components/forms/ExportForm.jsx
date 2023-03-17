@@ -139,6 +139,8 @@ const ExportForm = (props) => {
           0
         );
 
+        console.log("final", finalArray);
+
         setreports({
           alldocs: finalArray,
           total: totalSum,

@@ -1,6 +1,7 @@
 import React, { Fragment } from "react";
 import { Text, View, StyleSheet } from "@react-pdf/renderer";
 import dayjs from "dayjs";
+import moment from "moment";
 
 const borderColor = "#90e5fc";
 const styles = StyleSheet.create({
@@ -13,20 +14,28 @@ const styles = StyleSheet.create({
     fontStyle: "bold",
   },
   orderNumber: {
-    width: "30%",
+    width: "32%",
     textAlign: "left",
     borderRightColor: borderColor,
     borderRightWidth: 1,
     paddingLeft: 8,
   },
   date: {
-    width: "25%",
+    width: "30%",
     borderRightColor: borderColor,
     borderRightWidth: 1,
-    textAlign: "left",
+    textAlign: "center",
   },
+  restaurant: {
+    width: "32%",
+    textAlign: "left",
+    borderRightColor: borderColor,
+    borderRightWidth: 1,
+    paddingLeft: 8,
+  },
+
   description: {
-    width: "25%",
+    width: "30%",
     textAlign: "left",
     borderRightColor: borderColor,
     borderRightWidth: 1,
@@ -57,8 +66,10 @@ const InvoiceTableRow = ({ items }) => {
   const rows = items.map((item) => (
     <View style={styles.row} key={item.id}>
       <Text style={styles.orderNumber}>{item.orderNumber}</Text>
-      <Text style={styles.date}>{dayjs.unix(item.date).format("D/M/YY")}</Text>
-      <Text style={styles.description}>{item.name}</Text>
+      <Text style={styles.restaurant}>{item.name}</Text>
+      <Text style={styles.date}>
+        {moment.unix(item.date / 1000).format("MMM Do, YYYY")}
+      </Text>
       <Text style={styles.qty}>{item.location}</Text>
       <Text style={styles.qty}>{item.driver}</Text>
       <Text style={styles.qty}>{`${item.miles} * Rs.${item.costPerKm}`}</Text>

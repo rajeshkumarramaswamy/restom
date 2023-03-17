@@ -6,7 +6,6 @@ import { useFirestoreQuery } from "@react-query-firebase/firestore";
 import { ordersRef } from "../../utils/services/ReactQueryServices";
 import { StyledDiv } from "../../components/common/StyledGuide";
 import OrderFormEdit from "../../components/forms/OrderFormEdit";
-import dayjs from "dayjs";
 import moment from "moment/moment";
 const { Text } = Typography;
 const statusColor = {
