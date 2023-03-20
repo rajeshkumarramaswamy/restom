@@ -141,7 +141,7 @@ const OrderFormEdit = (props) => {
       deliveryCharge:
         (values.mileageEnd - values.mileageStart) * values.costPerKm,
       costPerKm: costPerKm,
-      date: epoch(values.date),
+      date: dayjs(values.date).unix(),
     });
   };
   const onValuesChange = (changedValues, allValues) => {

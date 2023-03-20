@@ -139,7 +139,7 @@ const ExportForm = (props) => {
           0
         );
 
-        console.log("final", finalArray);
+        console.log("final", finalArray, orderQuery);
 
         setreports({
           alldocs: finalArray,
