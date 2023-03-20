@@ -169,16 +169,16 @@ const ExportForm = (props) => {
   const handleCalendarChange = (time) => {
     setexportState({
       ...exportState,
-      dateFrom: parseInt(dayjs(time[0]).startOf("date").unix()),
-      dateTo: parseInt(dayjs(time[1]).endOf("date").unix()),
+      dateFrom: parseInt(dayjs(time[0]).startOf("date").unix() * 1000),
+      dateTo: parseInt(dayjs(time[1]).endOf("date").unix() * 1000),
     });
   };
 
   const handleTimeChange = (value, dateString) => {
     setexportState({
       ...exportState,
-      dateFrom: parseInt(dayjs(value).startOf("date").unix()),
-      dateTo: parseInt(dayjs(value).endOf("date").unix()),
+      dateFrom: parseInt(dayjs(value).startOf("date").unix() * 1000),
+      dateTo: parseInt(dayjs(value).endOf("date").unix() * 1000),
     });
   };
 
