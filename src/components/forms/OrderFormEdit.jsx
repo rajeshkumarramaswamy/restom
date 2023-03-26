@@ -138,11 +138,14 @@ const OrderFormEdit = (props) => {
     orderMutate.mutate({
       ...values,
       id: props.editDetails.id,
-      deliveryCharge:
-        (values.mileageEnd - values.mileageStart) * values.costPerKm,
-      costPerKm: costPerKm,
-      miles: parseInt(values.mileageEnd) - parseInt(values.mileageStart),
       date: dayjs(values.date).unix() * 1000,
+      mileageEnd: parseInt(values.mileageEnd),
+      mileageStart: parseInt(values.mileageStart),
+      value: parseInt(values.value),
+      miles: parseInt(values.mileageEnd) - parseInt(values.mileageStart),
+      deliveryCharge:
+        (parseInt(mileageEnd) - parseInt(mileageStart)) * parseInt(costPerKm),
+      costPerKm: parseInt(costPerKm),
     });
   };
   const onValuesChange = (changedValues, allValues) => {
