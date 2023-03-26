@@ -55,7 +55,11 @@ const OrderForm = (props) => {
     if (queryRestaurants.isFetched) {
       const fetchRestaurants = queryRestaurants.data?.docs.map(
         (docSnapshot) => {
-          const doc = docSnapshot.data();
+          const doc = {
+            ...docSnapshot.data(),
+            label: docSnapshot.data().name,
+            id: docSnapshot.id,
+          };
           return doc;
         }
       );
@@ -66,7 +70,11 @@ const OrderForm = (props) => {
   useEffect(() => {
     if (queryDrivers.isFetched) {
       const fetchDrivers = queryDrivers.data?.docs.map((docSnapshot) => {
-        const doc = { ...docSnapshot.data(), label: docSnapshot.data().name };
+        const doc = {
+          ...docSnapshot.data(),
+          label: docSnapshot.data().name,
+          id: docSnapshot.id,
+        };
         return doc;
       });
       setdriversList(fetchDrivers);
@@ -110,7 +118,6 @@ const OrderForm = (props) => {
   }, [orderMutate.isSuccess]);
 
   const onFinish = (values) => {
-    console.log("order new", dayjs(values.date).unix() * 1000);
     orderMutate.mutate({
       ...values,
       orderNumber: `XE${dayjs().unix()}`,
@@ -174,10 +181,10 @@ const OrderForm = (props) => {
                   {restoList.map((rest) => {
                     return (
                       <Option
-                        key={get(rest, "name", "")}
+                        key={get(rest, "id", "")}
                         value={get(rest, "name", "")}
                       >
-                        {get(rest, "name", "")}
+                        {get(rest, "name", "")} - {get(rest, "location", "")}
                       </Option>
                     );
                   })}
@@ -203,7 +210,7 @@ const OrderForm = (props) => {
                   {locationsList.map((rest) => {
                     return (
                       <Option
-                        key={get(rest, "name", "")}
+                        key={get(rest, "id", "")}
                         value={get(rest, "name", "")}
                       >
                         {get(rest, "name", "")}
@@ -232,7 +239,10 @@ const OrderForm = (props) => {
                 >
                   {driversList.map((driver) => {
                     return (
-                      <Option value={get(driver, "firstName", "")}>
+                      <Option
+                        key={get(driver, "id", "")}
+                        value={get(driver, "firstName", "")}
+                      >
                         {get(driver, "firstName", "")}
                       </Option>
                     );
