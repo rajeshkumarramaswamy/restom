@@ -110,10 +110,11 @@ const OrderForm = (props) => {
   }, [orderMutate.isSuccess]);
 
   const onFinish = (values) => {
+    console.log("order new", dayjs(values.date).unix() * 1000);
     orderMutate.mutate({
       ...values,
       orderNumber: `XE${dayjs().unix()}`,
-      date: dayjs(values.date).unix(),
+      date: dayjs(values.date).unix() * 1000,
       mileageEnd: parseInt(values.mileageEnd),
       mileageStart: parseInt(values.mileageStart),
       value: parseInt(values.value),
