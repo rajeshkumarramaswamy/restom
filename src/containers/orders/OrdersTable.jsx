@@ -98,7 +98,7 @@ const OrdersTable = () => {
       dataIndex: "miles",
       key: "miles",
       sorter: (a, b) => a.miles - b.miles,
-      render: (text) => <div>{`${text}Kms`}</div>,
+      render: (text) => <div>{`${text} Kms`}</div>,
     },
     {
       title: "Cust. Location",

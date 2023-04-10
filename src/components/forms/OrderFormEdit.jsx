@@ -139,12 +139,18 @@ const OrderFormEdit = (props) => {
       ...values,
       id: props.editDetails.id,
       date: dayjs(values.date).unix() * 1000,
-      mileageEnd: parseInt(values.mileageEnd),
-      mileageStart: parseInt(values.mileageStart),
+      mileageEnd: parseFloat(values.mileageEnd),
+      mileageStart: parseFloat(values.mileageStart),
       value: parseInt(values.value),
-      miles: parseInt(values.mileageEnd) - parseInt(values.mileageStart),
-      deliveryCharge:
-        (parseInt(mileageEnd) - parseInt(mileageStart)) * parseInt(costPerKm),
+      miles: (
+        parseFloat(values.mileageEnd).toFixed(2) -
+        parseFloat(values.mileageStart).toFixed(2)
+      ).toFixed(2),
+      deliveryCharge: (
+        (parseFloat(values.mileageEnd).toFixed(2) -
+          parseFloat(values.mileageStart).toFixed(2)) *
+        parseInt(costPerKm)
+      ).toFixed(2),
       costPerKm: parseInt(costPerKm),
     });
   };
@@ -427,8 +433,21 @@ const OrderFormEdit = (props) => {
       >
         <h1>Total : {orderValue}</h1>
         <p>
+          Kilometers to delivery :{" "}
+          {(
+            parseFloat(mileageEnd).toFixed(2) -
+            parseFloat(mileageStart).toFixed(2)
+          ).toFixed(2) || 0}
+        </p>
+        <p>
           Delivery Charges :{" "}
-          {`Rs.${(mileageEnd - mileageStart) * costPerKm || 0}`}
+          {`Rs.${
+            (
+              (parseFloat(mileageEnd).toFixed(2) -
+                parseFloat(mileageStart).toFixed(2)) *
+              parseInt(costPerKm)
+            ).toFixed(2) || 0
+          }`}
         </p>
       </div>
       {contextHolder}
